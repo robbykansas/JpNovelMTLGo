@@ -1,0 +1,9 @@
+application:
+  appName: "jpNovelMTLGo"
+  appVersion: "0.0.1"
+  appDescription: "Japanese Novel Translation MTL Golang"
+  server:
+    host: ${SQL_HOST}
+    port: ${SQL_PORT}
+    username: ${SQL_USERNAME}
+    password: ${SQL_PASSWORD}
