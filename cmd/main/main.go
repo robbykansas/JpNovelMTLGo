@@ -4,6 +4,7 @@ import (
 	"jpnovelmtlgo/internal/config"
 	"jpnovelmtlgo/internal/controller"
 	"jpnovelmtlgo/internal/exception"
+	"jpnovelmtlgo/internal/service"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/helmet"
@@ -14,12 +15,14 @@ import (
 func main() {
 	configuration := config.New("application.yml")
 
-	// Setup Controller
-	HealthcheckController := controller.NewHealthcheckController(&configuration)
-
 	// Setup Repository
 
 	// Setup Service
+	SyosetuService := service.NewSyosetuService()
+
+	// Setup Controller
+	HealthcheckController := controller.NewHealthcheckController(&configuration)
+	SyosetuController := controller.NewSyosetuController(&SyosetuService)
 
 	// Setup Fiber
 	app := fiber.New(config.NewFiberConfig())
@@ -33,6 +36,7 @@ func main() {
 
 	// Setup Routing
 	HealthcheckController.Route(app)
+	SyosetuController.Route(app)
 
 	// Start App
 	err := app.Listen(":3000")
