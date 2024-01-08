@@ -9,4 +9,5 @@ import (
 
 type SyosetuService interface {
 	ListChapterNovel(ctx *fiber.Ctx, params *request.ListChapterNovelRequest) (*response.ListChapterNovelResponse, error)
+	GetChapterPage(ctx *fiber.Ctx, params *request.ListChapterNovelRequest) (*response.GetChapterPageResponse, error)
 }

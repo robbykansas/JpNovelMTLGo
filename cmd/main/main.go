@@ -4,6 +4,7 @@ import (
 	"jpnovelmtlgo/internal/config"
 	"jpnovelmtlgo/internal/controller"
 	"jpnovelmtlgo/internal/exception"
+	"jpnovelmtlgo/internal/repository"
 	"jpnovelmtlgo/internal/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -16,9 +17,10 @@ func main() {
 	configuration := config.New("application.yml")
 
 	// Setup Repository
+	TranslateRepository := repository.NewTranslateRepository(&configuration)
 
 	// Setup Service
-	SyosetuService := service.NewSyosetuService()
+	SyosetuService := service.NewSyosetuService(&TranslateRepository)
 
 	// Setup Controller
 	HealthcheckController := controller.NewHealthcheckController(&configuration)

@@ -23,10 +23,11 @@ type configImpl struct {
 }
 
 type Application struct {
-	AppName        string `yaml:"appName"`
-	AppVersion     string `yaml:"appVersion"`
-	AppDescription string `yaml:"appDescription"`
-	Server         Server `yaml:"server"`
+	AppName        string    `yaml:"appName"`
+	AppVersion     string    `yaml:"appVersion"`
+	AppDescription string    `yaml:"appDescription"`
+	Server         Server    `yaml:"server"`
+	Translate      Translate `yaml:"translate"`
 }
 
 type Server struct {
@@ -34,6 +35,10 @@ type Server struct {
 	Port     string `yaml:"port"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
+}
+
+type Translate struct {
+	Url string `yaml:"url"`
 }
 
 func (config *configImpl) Get(key string) string {

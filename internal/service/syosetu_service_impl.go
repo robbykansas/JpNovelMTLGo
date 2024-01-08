@@ -4,16 +4,23 @@ import (
 	"jpnovelmtlgo/internal/exception"
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
+	"jpnovelmtlgo/internal/repository"
 	"strings"
 
 	"github.com/gocolly/colly/v2"
 	"github.com/gofiber/fiber/v2"
 )
 
-type SyosetuServiceImpl struct{}
+type SyosetuServiceImpl struct {
+	TranslateRepository repository.TranslateRepository
+}
 
-func NewSyosetuService() SyosetuService {
-	return &SyosetuServiceImpl{}
+func NewSyosetuService(
+	TranslateRepository *repository.TranslateRepository,
+) SyosetuService {
+	return &SyosetuServiceImpl{
+		TranslateRepository: *TranslateRepository,
+	}
 }
 
 func (service *SyosetuServiceImpl) ListChapterNovel(ctx *fiber.Ctx, params *request.ListChapterNovelRequest) (*response.ListChapterNovelResponse, error) {
@@ -46,4 +53,39 @@ func (service *SyosetuServiceImpl) ListChapterNovel(ctx *fiber.Ctx, params *requ
 	}
 
 	return response, nil
+}
+
+func (service *SyosetuServiceImpl) GetChapterPage(ctx *fiber.Ctx, params *request.ListChapterNovelRequest) (*response.GetChapterPageResponse, error) {
+	var title string
+	var honbun string
+	c := colly.NewCollector()
+
+	c.OnHTML(".novel_subtitle", func(e *colly.HTMLElement) {
+		title = e.Text
+	})
+
+	c.OnHTML(".novel_view", func(e *colly.HTMLElement) {
+		honbun = e.Text
+	})
+
+	err := c.Visit(params.Url)
+	if err != nil {
+		panic(exception.GeneralError{
+			Message: err.Error(),
+		})
+	}
+
+	translateRequest := &request.TranslateChapterRequest{
+		Title:   title,
+		Chapter: honbun,
+	}
+
+	getTranslate, err := service.TranslateRepository.TranslateChapter(translateRequest)
+	if err != nil {
+		panic(exception.GeneralError{
+			Message: err.Error(),
+		})
+	}
+
+	return getTranslate, nil
 }

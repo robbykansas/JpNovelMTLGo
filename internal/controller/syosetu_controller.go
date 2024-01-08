@@ -22,6 +22,7 @@ func NewSyosetuController(
 
 func (controller *SyosetuController) Route(app *fiber.App) {
 	app.Post("/syosetu/list-chapter", controller.ListChapterNovel)
+	app.Post("/syosetu/chapter", controller.GetChapterNovel)
 }
 
 func (controller *SyosetuController) ListChapterNovel(ctx *fiber.Ctx) error {
@@ -31,12 +32,24 @@ func (controller *SyosetuController) ListChapterNovel(ctx *fiber.Ctx) error {
 		exception.PanicIfNeeded(err)
 	}
 
-	// requestData, err := json.Marshal(request)
-	// if err != nil {
-	// 	exception.PanicIfNeeded(err)
-	// }
-	// fmt.println(requestData)
 	response, err := controller.SyosetuService.ListChapterNovel(ctx, &request)
+	if err != nil {
+		panic(exception.GeneralError{
+			Message: err.Error(),
+		})
+	}
+
+	return ctx.Status(200).JSON(response)
+}
+
+func (controller *SyosetuController) GetChapterNovel(ctx *fiber.Ctx) error {
+	var request request.ListChapterNovelRequest
+	err := ctx.BodyParser(&request)
+	if err != nil {
+		exception.PanicIfNeeded(err)
+	}
+
+	response, err := controller.SyosetuService.GetChapterPage(ctx, &request)
 	if err != nil {
 		panic(exception.GeneralError{
 			Message: err.Error(),

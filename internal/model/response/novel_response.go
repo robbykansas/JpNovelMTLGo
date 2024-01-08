@@ -9,3 +9,8 @@ type ListChapterNovelResponse struct {
 	StatusCode string             `json:"statusCode"`
 	Data       []ListChapterNovel `json:"data"`
 }
+
+type GetChapterPageResponse struct {
+	Title   string `json:"title"`
+	Chapter string `json:"chapter"`
+}

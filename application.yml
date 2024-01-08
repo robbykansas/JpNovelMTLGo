@@ -7,3 +7,5 @@ application:
     port: ${SQL_PORT}
     username: ${SQL_USERNAME}
     password: ${SQL_PASSWORD}
+  translate:
+    url: ${TRANSLATE_URL}
