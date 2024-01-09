@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  jpnovelmtl:
+    container_name: "jpnovelmtl"
+    build: 
+      context: .
+    env_file:
+      - ./.env
+    ports:
+      - "3000:3000"
+  
+  libretranslate:
+    container_name: "libretranslate"
+    image: libretranslate/libretranslate:latest
+    ports:
+      - "5001:5000"
+    command: --load-only ja,en

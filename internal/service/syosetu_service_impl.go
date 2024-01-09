@@ -5,6 +5,7 @@ import (
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
 	"jpnovelmtlgo/internal/repository"
+	"sort"
 	"strings"
 
 	"github.com/gocolly/colly/v2"
@@ -24,7 +25,7 @@ func NewSyosetuService(
 }
 
 func (service *SyosetuServiceImpl) ListChapterNovel(ctx *fiber.Ctx, params *request.ListChapterNovelRequest) (*response.ListChapterNovelResponse, error) {
-	var listChapter []response.ListChapterNovel
+	var listChapter []request.TranslateListRequest
 
 	c := colly.NewCollector()
 
@@ -33,7 +34,7 @@ func (service *SyosetuServiceImpl) ListChapterNovel(ctx *fiber.Ctx, params *requ
 		url := e.ChildAttr("a", "href")
 		urlSplit := strings.Split(url, "/")
 		url = params.Url + urlSplit[2] + "/"
-		chapter := &response.ListChapterNovel{
+		chapter := &request.TranslateListRequest{
 			Title: title,
 			Url:   url,
 		}
@@ -47,12 +48,19 @@ func (service *SyosetuServiceImpl) ListChapterNovel(ctx *fiber.Ctx, params *requ
 			Message: err.Error(),
 		})
 	}
-	response := &response.ListChapterNovelResponse{
-		StatusCode: "200",
-		Data:       listChapter,
+
+	res, err := service.TranslateRepository.TranslateList(listChapter)
+	if err != nil {
+		panic(exception.GeneralError{
+			Message: err.Error(),
+		})
 	}
 
-	return response, nil
+	sort.Slice(res.Data, func(i, j int) bool {
+		return res.Data[i].Order < res.Data[j].Order
+	})
+
+	return res, nil
 }
 
 func (service *SyosetuServiceImpl) GetChapterPage(ctx *fiber.Ctx, params *request.ListChapterNovelRequest) (*response.GetChapterPageResponse, error) {

@@ -6,7 +6,6 @@ require (
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/gofiber/fiber/v2 v2.51.0
 	github.com/joho/godotenv v1.5.1
-	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (

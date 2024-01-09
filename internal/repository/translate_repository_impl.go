@@ -8,6 +8,7 @@ import (
 	"jpnovelmtlgo/internal/model/response"
 	"net/http"
 	"strings"
+	"sync"
 )
 
 type TranslateRepositoryImpl struct {
@@ -50,7 +51,7 @@ func (repository *TranslateRepositoryImpl) TranslateChapter(params *request.Tran
 
 		payload := strings.NewReader(string(jsonData))
 
-		req, err := http.NewRequest("POST", repository.Configuration.App().Translate.Url, payload)
+		req, err := http.NewRequest("POST", repository.Configuration.Get("TRANSLATE_URL"), payload)
 		if err != nil {
 			exception.PanicIfNeeded(err)
 		}
@@ -79,7 +80,7 @@ func (repository *TranslateRepositoryImpl) TranslateChapter(params *request.Tran
 
 		payload := strings.NewReader(string(jsonData))
 
-		req, err := http.NewRequest("POST", repository.Configuration.App().Translate.Url, payload)
+		req, err := http.NewRequest("POST", repository.Configuration.Get("TRANSLATE_URL"), payload)
 		if err != nil {
 			exception.PanicIfNeeded(err)
 		}
@@ -108,17 +109,54 @@ func (repository *TranslateRepositoryImpl) TranslateChapter(params *request.Tran
 	return result, nil
 }
 
-func (repository *TranslateRepositoryImpl) AsyncTranslate(params *request.TranslateRequest) string {
+func (repository *TranslateRepositoryImpl) TranslateList(params []request.TranslateListRequest) (*response.ListChapterNovelResponse, error) {
+	var wg sync.WaitGroup
+	var translatedList []request.TranslateListRequest
+	var count = 0
+	translatedTitle := make(chan request.TranslateListRequest, 10)
+
+	for _, item := range params {
+		count += 1
+		item.Order = count
+		wg.Add(1)
+
+		go repository.TranslateEachTitle(item, &wg, translatedTitle)
+	}
+
+	wg.Wait()
+	close(translatedTitle)
+
+	for title := range translatedTitle {
+		translatedList = append(translatedList, title)
+	}
+
+	result := &response.ListChapterNovelResponse{
+		StatusCode: "200",
+		Data:       translatedList,
+	}
+
+	return result, nil
+}
+
+func (repository *TranslateRepositoryImpl) TranslateEachTitle(params request.TranslateListRequest, wg *sync.WaitGroup, translatedTitle chan<- request.TranslateListRequest) {
+	defer wg.Done()
 	client := &http.Client{}
 
-	jsonData, err := json.Marshal(params)
+	payloadTitleRequest := &request.TranslateRequest{
+		Q:      params.Title,
+		Source: "ja",
+		Target: "en",
+		Format: "",
+	}
+
+	jsonData, err := json.Marshal(payloadTitleRequest)
 	if err != nil {
 		exception.PanicIfNeeded(err)
 	}
 
 	payload := strings.NewReader(string(jsonData))
 
-	req, err := http.NewRequest("POST", repository.Configuration.App().Translate.Url, payload)
+	req, err := http.NewRequest("POST", repository.Configuration.Get("TRANSLATE_URL"), payload)
 	if err != nil {
 		exception.PanicIfNeeded(err)
 	}
@@ -133,5 +171,10 @@ func (repository *TranslateRepositoryImpl) AsyncTranslate(params *request.Transl
 	json.NewDecoder(res.Body).Decode(&translatedText)
 	defer res.Body.Close()
 
-	return translatedText.TranslatedText
+	translatedTitle <- request.TranslateListRequest{
+		Title:   params.Title,
+		Url:     params.Url,
+		TitleEn: translatedText.TranslatedText,
+		Order:   params.Order,
+	}
 }

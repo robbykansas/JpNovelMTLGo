@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"jpnovelmtlgo/internal/config"
 
 	"github.com/gofiber/fiber/v2"
@@ -24,6 +23,5 @@ func (controller *HealthcheckController) Route(app *fiber.App) {
 }
 
 func (controller *HealthcheckController) HealthCheck(ctx *fiber.Ctx) error {
-	fmt.Printf("%+v\n", controller.Configuration.App())
 	return ctx.Status(200).JSON("API Running....")
 }

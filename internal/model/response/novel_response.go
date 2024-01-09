@@ -1,13 +1,10 @@
 package response
 
-type ListChapterNovel struct {
-	Title string `json:"title"`
-	Url   string `json:"url"`
-}
+import "jpnovelmtlgo/internal/model/request"
 
 type ListChapterNovelResponse struct {
-	StatusCode string             `json:"statusCode"`
-	Data       []ListChapterNovel `json:"data"`
+	StatusCode string                         `json:"statusCode"`
+	Data       []request.TranslateListRequest `json:"data"`
 }
 
 type GetChapterPageResponse struct {

@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	configuration := config.New("application.yml")
+	configuration := config.New()
 
 	// Setup Repository
 	TranslateRepository := repository.NewTranslateRepository(&configuration)
