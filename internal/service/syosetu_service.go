@@ -8,6 +8,7 @@ import (
 )
 
 type SyosetuService interface {
-	ListChapterNovel(ctx *fiber.Ctx, params *request.ListChapterNovelRequest) (*response.ListChapterNovelResponse, error)
-	GetChapterPage(ctx *fiber.Ctx, params *request.ListChapterNovelRequest) (*response.GetChapterPageResponse, error)
+	ListChapterNovel(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*response.ListChapterNovelResponse, error)
+	GetChapterPage(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*response.GetChapterPageResponse, error)
+	JpEpub(ctx *fiber.Ctx, params *request.ConvertNovelRequest) (*fiber.Map, error)
 }

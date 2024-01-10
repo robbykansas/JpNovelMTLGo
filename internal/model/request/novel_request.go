@@ -1,7 +1,23 @@
 package request
 
-type ListChapterNovelRequest struct {
+type ChapterNovelRequest struct {
 	Url string `json:"url"`
+}
+
+type ConvertNovelRequest struct {
+	Url  string `json:"url"`
+	Page string `json:"page"`
+}
+
+type ListChapterByUrl struct {
+	Url   string `json:"url"`
+	Order int    `json:"order"`
+}
+
+type ChapterContent struct {
+	Title   string `json:"title"`
+	Chapter string `json:"chapter"`
+	Order   int    `json:"order"`
 }
 
 type TranslateChapterRequest struct {
