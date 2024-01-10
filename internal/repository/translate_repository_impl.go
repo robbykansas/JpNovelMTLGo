@@ -2,6 +2,7 @@ package repository
 
 import (
 	"encoding/json"
+	"fmt"
 	"jpnovelmtlgo/internal/config"
 	"jpnovelmtlgo/internal/exception"
 	"jpnovelmtlgo/internal/model/request"
@@ -9,6 +10,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 )
 
 type TranslateRepositoryImpl struct {
@@ -41,63 +43,8 @@ func (repository *TranslateRepositoryImpl) TranslateChapter(params *request.Tran
 		Format: "",
 	}
 
-	go func() {
-		client := &http.Client{}
-
-		jsonData, err := json.Marshal(payloadTitleRequest)
-		if err != nil {
-			exception.PanicIfNeeded(err)
-		}
-
-		payload := strings.NewReader(string(jsonData))
-
-		req, err := http.NewRequest("POST", repository.Configuration.Get("TRANSLATE_URL"), payload)
-		if err != nil {
-			exception.PanicIfNeeded(err)
-		}
-
-		req.Header.Add("Content-Type", "application/json")
-		res, err := client.Do(req)
-		if err != nil {
-			exception.PanicIfNeeded(err)
-		}
-
-		translatedText := &response.TranslateResponse{}
-		json.NewDecoder(res.Body).Decode(&translatedText)
-		defer res.Body.Close()
-
-		translateTitle <- translatedText.TranslatedText
-		defer close(translateTitle)
-	}()
-
-	go func() {
-		client := &http.Client{}
-
-		jsonData, err := json.Marshal(payloadChapterRequest)
-		if err != nil {
-			exception.PanicIfNeeded(err)
-		}
-
-		payload := strings.NewReader(string(jsonData))
-
-		req, err := http.NewRequest("POST", repository.Configuration.Get("TRANSLATE_URL"), payload)
-		if err != nil {
-			exception.PanicIfNeeded(err)
-		}
-
-		req.Header.Add("Content-Type", "application/json")
-		res, err := client.Do(req)
-		if err != nil {
-			exception.PanicIfNeeded(err)
-		}
-
-		translatedText := &response.TranslateResponse{}
-		json.NewDecoder(res.Body).Decode(&translatedText)
-		defer res.Body.Close()
-
-		translateChapter <- translatedText.TranslatedText
-		defer close(translateChapter)
-	}()
+	go repository.TranslateWord(payloadTitleRequest, translateTitle)
+	go repository.TranslateWord(payloadChapterRequest, translateChapter)
 
 	title := <-translateTitle
 	chapter := <-translateChapter
@@ -106,7 +53,38 @@ func (repository *TranslateRepositoryImpl) TranslateChapter(params *request.Tran
 		Chapter: chapter,
 	}
 
+	close(translateTitle)
+	close(translateChapter)
+
 	return result, nil
+}
+
+func (repository *TranslateRepositoryImpl) TranslateWord(params *request.TranslateRequest, channelWord chan<- string) {
+	client := &http.Client{}
+
+	jsonData, err := json.Marshal(params)
+	if err != nil {
+		exception.PanicIfNeeded(err)
+	}
+
+	payload := strings.NewReader(string(jsonData))
+
+	req, err := http.NewRequest("POST", repository.Configuration.Get("TRANSLATE_URL"), payload)
+	if err != nil {
+		exception.PanicIfNeeded(err)
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	res, err := client.Do(req)
+	if err != nil {
+		exception.PanicIfNeeded(err)
+	}
+
+	translatedText := &response.TranslateResponse{}
+	json.NewDecoder(res.Body).Decode(&translatedText)
+	defer res.Body.Close()
+
+	channelWord <- translatedText.TranslatedText
 }
 
 func (repository *TranslateRepositoryImpl) TranslateList(params []request.TranslateListRequest) (*response.ListChapterNovelResponse, error) {
@@ -120,11 +98,18 @@ func (repository *TranslateRepositoryImpl) TranslateList(params []request.Transl
 		item.Order = count
 		wg.Add(1)
 
+		if count%50 == 0 {
+			fmt.Println(count)
+			time.Sleep(10 * time.Second)
+		}
+
 		go repository.TranslateEachTitle(item, &wg, translatedTitle)
 	}
 
-	wg.Wait()
-	close(translatedTitle)
+	go func() {
+		wg.Wait()
+		close(translatedTitle)
+	}()
 
 	for title := range translatedTitle {
 		translatedList = append(translatedList, title)
