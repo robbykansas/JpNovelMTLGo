@@ -31,3 +31,8 @@ type TranslateListRequest struct {
 	TitleEn string `json:"titleEn"`
 	Order   int    `json:"order"`
 }
+
+type NovelInfo struct {
+	Title  string `json:"title"`
+	Author string `json:"author"`
+}

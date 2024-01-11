@@ -163,3 +163,122 @@ func (repository *TranslateRepositoryImpl) TranslateEachTitle(params request.Tra
 		Order:   params.Order,
 	}
 }
+
+func (repository *TranslateRepositoryImpl) TranslateInfo(params *request.NovelInfo) (*response.TranslatedInfoResponse, error) {
+	translatedTitle := make(chan string)
+	translatedAuthor := make(chan string)
+
+	payloadTitle := &request.TranslateRequest{
+		Q:      params.Title,
+		Source: "ja",
+		Target: "en",
+		Format: "",
+	}
+
+	payloadAuthor := request.TranslateRequest{
+		Q:      params.Author,
+		Source: "ja",
+		Target: "en",
+		Format: "",
+	}
+
+	go repository.TranslateWord(payloadTitle, translatedTitle)
+	go repository.TranslateWord(&payloadAuthor, translatedAuthor)
+
+	title := <-translatedTitle
+	author := <-translatedAuthor
+	result := &response.TranslatedInfoResponse{
+		Title:  title,
+		Author: author,
+	}
+
+	close(translatedTitle)
+	close(translatedAuthor)
+
+	return result, nil
+}
+
+func (repository *TranslateRepositoryImpl) TranslateListChapter(params []request.ChapterContent) ([]response.TranslatedListChapterResponse, error) {
+	var wg sync.WaitGroup
+	var listChapter []response.TranslatedListChapterResponse
+	translatedChapter := make(chan response.TranslatedListChapterResponse, 10)
+
+	for _, item := range params {
+		wg.Add(1)
+
+		go repository.TranslateEachChapter(item, &wg, translatedChapter)
+	}
+
+	go func() {
+		wg.Wait()
+		close(translatedChapter)
+	}()
+
+	for chapter := range translatedChapter {
+		listChapter = append(listChapter, chapter)
+	}
+
+	return listChapter, nil
+}
+
+func (repository *TranslateRepositoryImpl) TranslateEachChapter(params request.ChapterContent, wg *sync.WaitGroup, translatedChapter chan<- response.TranslatedListChapterResponse) {
+	defer wg.Done()
+
+	payloadTitleRequest := &request.TranslateRequest{
+		Q:      params.Title,
+		Source: "ja",
+		Target: "en",
+		Format: "",
+	}
+
+	payloadChapterRequest := &request.TranslateRequest{
+		Q:      params.Chapter,
+		Source: "ja",
+		Target: "en",
+		Format: "",
+	}
+
+	enTitle, err := repository.SyncTranslateWord(payloadTitleRequest)
+	if err != nil {
+		exception.PanicIfNeeded(err)
+	}
+
+	enChapter, err := repository.SyncTranslateWord(payloadChapterRequest)
+	if err != nil {
+		exception.PanicIfNeeded(err)
+	}
+
+	translatedChapter <- response.TranslatedListChapterResponse{
+		Title:   enTitle,
+		Chapter: enChapter,
+		Order:   params.Order,
+	}
+}
+
+func (repository *TranslateRepositoryImpl) SyncTranslateWord(params *request.TranslateRequest) (string, error) {
+	client := &http.Client{}
+
+	jsonData, err := json.Marshal(params)
+	if err != nil {
+		return "", err
+	}
+
+	payload := strings.NewReader(string(jsonData))
+
+	req, err := http.NewRequest("POST", repository.Configuration.Get("TRANSLATE_URL"), payload)
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	res, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+
+	translatedText := &response.TranslateResponse{}
+	json.NewDecoder(res.Body).Decode(&translatedText)
+	defer res.Body.Close()
+
+	return translatedText.TranslatedText, nil
+}

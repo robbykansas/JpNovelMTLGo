@@ -11,4 +11,5 @@ type SyosetuService interface {
 	ListChapterNovel(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*response.ListChapterNovelResponse, error)
 	GetChapterPage(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*response.GetChapterPageResponse, error)
 	JpEpub(ctx *fiber.Ctx, params *request.ConvertNovelRequest) (*fiber.Map, error)
+	EnEpub(ctx *fiber.Ctx, params *request.ConvertNovelRequest) (*fiber.Map, error)
 }

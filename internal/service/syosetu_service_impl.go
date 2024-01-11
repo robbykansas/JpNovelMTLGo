@@ -211,3 +211,104 @@ func (service *SyosetuServiceImpl) JpChapter(params *request.ListChapterByUrl, w
 
 	scrapingData <- content
 }
+
+func (service *SyosetuServiceImpl) EnEpub(ctx *fiber.Ctx, params *request.ConvertNovelRequest) (*fiber.Map, error) {
+	chapterNovel := make(chan request.ChapterContent)
+	var listChapter []request.ChapterContent
+	var wg sync.WaitGroup
+	var title string
+	var author string
+	c := colly.NewCollector()
+
+	c.OnHTML(".novel_title", func(e *colly.HTMLElement) {
+		title = e.Text
+	})
+
+	c.OnHTML(".novel_writername", func(e *colly.HTMLElement) {
+		author = e.Text
+	})
+
+	err := c.Visit(params.Url)
+	if err != nil {
+		panic(exception.GeneralError{
+			Message: err.Error(),
+		})
+	}
+
+	novelInfo := &request.NovelInfo{
+		Title:  title,
+		Author: author,
+	}
+	translatedNovelInfo, err := service.TranslateRepository.TranslateInfo(novelInfo)
+	if err != nil {
+		panic(exception.GeneralError{
+			Message: err.Error(),
+		})
+	}
+
+	e, err := epub.NewEpub(translatedNovelInfo.Title)
+	if err != nil {
+		panic(exception.GeneralError{
+			Message: err.Error(),
+		})
+	}
+	e.SetAuthor(translatedNovelInfo.Author)
+	pageSplit := strings.Split(params.Page, "-")
+	startPage, _ := strconv.Atoi(pageSplit[0])
+	finishPage, _ := strconv.Atoi(pageSplit[1])
+	for i := startPage; i <= finishPage; i++ {
+		wg.Add(1)
+		payload := &request.ListChapterByUrl{
+			Url:   params.Url + strconv.Itoa(i) + "/",
+			Order: i,
+		}
+		go service.JpChapter(payload, &wg, chapterNovel)
+	}
+
+	go func() {
+		wg.Wait()
+		close(chapterNovel)
+	}()
+
+	for chapter := range chapterNovel {
+		listChapter = append(listChapter, chapter)
+	}
+
+	sort.Slice(listChapter, func(i, j int) bool {
+		return listChapter[i].Order < listChapter[j].Order
+	})
+
+	enBatch, err := service.TranslateRepository.TranslateListChapter(listChapter)
+	if err != nil {
+		panic(exception.GeneralError{
+			Message: err.Error(),
+		})
+	}
+
+	sort.Slice(enBatch, func(i, j int) bool {
+		return enBatch[i].Order < enBatch[j].Order
+	})
+
+	for _, item := range enBatch {
+		sectionBody := `<h1>` + item.Title + `</h1>
+		<p>` + item.Chapter + `</p>`
+		_, err := e.AddSection(sectionBody, item.Title, "", "")
+		if err != nil {
+			panic(exception.GeneralError{
+				Message: err.Error(),
+			})
+		}
+	}
+
+	err = e.Write(fmt.Sprintf("./epub/%s.epub", translatedNovelInfo.Title))
+	if err != nil {
+		panic(exception.GeneralError{
+			Message: err.Error(),
+		})
+	}
+
+	res := &fiber.Map{
+		"success": true,
+	}
+	return res, nil
+}
