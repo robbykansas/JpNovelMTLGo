@@ -11,6 +11,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/go-pdf/fpdf"
 	"github.com/go-shiori/go-epub"
 	"github.com/gocolly/colly/v2"
 	"github.com/gofiber/fiber/v2"
@@ -306,6 +307,70 @@ func (service *SyosetuServiceImpl) EnEpub(ctx *fiber.Ctx, params *request.Conver
 			Message: err.Error(),
 		})
 	}
+
+	res := &fiber.Map{
+		"success": true,
+	}
+	return res, nil
+}
+
+func (service *SyosetuServiceImpl) JpPdf(ctx *fiber.Ctx, params *request.ConvertNovelRequest) (*fiber.Map, error) {
+	chapterNovel := make(chan request.ChapterContent)
+	var listChapter []request.ChapterContent
+	var wg sync.WaitGroup
+	var title string
+	var author string
+	c := colly.NewCollector()
+
+	c.OnHTML(".novel_title", func(e *colly.HTMLElement) {
+		title = e.Text
+	})
+
+	c.OnHTML(".novel_writername", func(e *colly.HTMLElement) {
+		author = e.Text
+	})
+
+	err := c.Visit(params.Url)
+	if err != nil {
+		panic(exception.GeneralError{
+			Message: err.Error(),
+		})
+	}
+
+	pageSplit := strings.Split(params.Page, "-")
+	startPage, _ := strconv.Atoi(pageSplit[0])
+	finishPage, _ := strconv.Atoi(pageSplit[1])
+	for i := startPage; i <= finishPage; i++ {
+		wg.Add(1)
+		payload := &request.ListChapterByUrl{
+			Url:   params.Url + strconv.Itoa(i) + "/",
+			Order: i,
+		}
+		go service.JpChapter(payload, &wg, chapterNovel)
+	}
+
+	go func() {
+		wg.Wait()
+		close(chapterNovel)
+	}()
+
+	for chapter := range chapterNovel {
+		listChapter = append(listChapter, chapter)
+	}
+
+	sort.Slice(listChapter, func(i, j int) bool {
+		return listChapter[i].Order < listChapter[j].Order
+	})
+
+	pdf := fpdf.New("P", "mm", "A4", "")
+	for _, item := range listChapter {
+		pdf.AddPage()
+		pdf.SetFont("Arial", "", 16)
+		pdf.Cell(40, 10, item.Chapter)
+	}
+	fmt.Println(author)
+	// err = e.Write(fmt.Sprintf("./epub/%s.epub", title))
+	err = pdf.OutputFileAndClose(fmt.Sprintf("./epub/%s.pdf", title))
 
 	res := &fiber.Map{
 		"success": true,

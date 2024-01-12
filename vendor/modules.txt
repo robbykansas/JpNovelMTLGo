@@ -22,6 +22,9 @@ github.com/gabriel-vasile/mimetype
 github.com/gabriel-vasile/mimetype/internal/charset
 github.com/gabriel-vasile/mimetype/internal/json
 github.com/gabriel-vasile/mimetype/internal/magic
+# github.com/go-pdf/fpdf v0.9.0
+## explicit; go 1.20
+github.com/go-pdf/fpdf
 # github.com/go-shiori/go-epub v1.2.1
 ## explicit; go 1.21
 github.com/go-shiori/go-epub

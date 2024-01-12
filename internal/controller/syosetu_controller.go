@@ -25,6 +25,7 @@ func (controller *SyosetuController) Route(app *fiber.App) {
 	app.Post("/syosetu/chapter", controller.GetChapterNovel)
 	app.Post("/syosetu/jp-epub", controller.JpEpub)
 	app.Post("/syosetu/en-epub", controller.EnEpub)
+	app.Post("/syosetu/jp-pdf", controller.JpPdf)
 }
 
 func (controller *SyosetuController) ListChapterNovel(ctx *fiber.Ctx) error {
@@ -86,6 +87,23 @@ func (controller *SyosetuController) EnEpub(ctx *fiber.Ctx) error {
 	}
 
 	response, err := controller.SyosetuService.EnEpub(ctx, &request)
+	if err != nil {
+		panic(exception.GeneralError{
+			Message: err.Error(),
+		})
+	}
+
+	return ctx.Status(200).JSON(response)
+}
+
+func (controller *SyosetuController) JpPdf(ctx *fiber.Ctx) error {
+	var request request.ConvertNovelRequest
+	err := ctx.BodyParser(&request)
+	if err != nil {
+		exception.PanicIfNeeded(err)
+	}
+
+	response, err := controller.SyosetuService.JpPdf(ctx, &request)
 	if err != nil {
 		panic(exception.GeneralError{
 			Message: err.Error(),
