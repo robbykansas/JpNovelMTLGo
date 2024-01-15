@@ -21,10 +21,12 @@ func main() {
 
 	// Setup Service
 	SyosetuService := service.NewSyosetuService(&TranslateRepository)
+	KakuyomuService := service.NewKakuyomuService(&TranslateRepository)
 
 	// Setup Controller
 	HealthcheckController := controller.NewHealthcheckController(&configuration)
 	SyosetuController := controller.NewSyosetuController(&SyosetuService)
+	KakuyomuController := controller.NewKakuyomuController(&KakuyomuService)
 
 	// Setup Fiber
 	app := fiber.New(config.NewFiberConfig())
@@ -39,6 +41,7 @@ func main() {
 	// Setup Routing
 	HealthcheckController.Route(app)
 	SyosetuController.Route(app)
+	KakuyomuController.Route(app)
 
 	// Start App
 	err := app.Listen(":3000")
