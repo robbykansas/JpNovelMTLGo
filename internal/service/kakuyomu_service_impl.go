@@ -66,3 +66,39 @@ func (service *KakuyomuServiceImpl) KakuyomuListChapter(ctx *fiber.Ctx, params *
 
 	return res, nil
 }
+
+func (service *KakuyomuServiceImpl) KakuyomuChapterPage(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*response.GetChapterPageResponse, error) {
+	var title string
+	var honbun string
+
+	c := colly.NewCollector()
+
+	c.OnHTML(".widget-episodeTitle", func(e *colly.HTMLElement) {
+		title = e.Text
+	})
+
+	c.OnHTML(".widget-episodeBody", func(e *colly.HTMLElement) {
+		honbun = e.Text
+	})
+
+	err := c.Visit(params.Url)
+	if err != nil {
+		panic(exception.GeneralError{
+			Message: err.Error(),
+		})
+	}
+
+	translateRequest := &request.TranslateChapterRequest{
+		Title:   title,
+		Chapter: honbun,
+	}
+
+	getTranslate, err := service.TranslateRepository.TranslateChapter(translateRequest)
+	if err != nil {
+		panic(exception.GeneralError{
+			Message: err.Error(),
+		})
+	}
+
+	return getTranslate, nil
+}

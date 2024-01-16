@@ -22,6 +22,7 @@ func NewKakuyomuController(
 
 func (controller *KakuyomuController) Route(app *fiber.App) {
 	app.Post("/kakuyomu/list-chapter", controller.KakuyomuListChapter)
+	app.Post("/kakuyomu/chapter", controller.KakuyomuChapterPage)
 }
 
 func (controller *KakuyomuController) KakuyomuListChapter(ctx *fiber.Ctx) error {
@@ -32,6 +33,23 @@ func (controller *KakuyomuController) KakuyomuListChapter(ctx *fiber.Ctx) error 
 	}
 
 	response, err := controller.KakuyomuService.KakuyomuListChapter(ctx, &request)
+	if err != nil {
+		panic(exception.GeneralError{
+			Message: err.Error(),
+		})
+	}
+
+	return ctx.Status(200).JSON(response)
+}
+
+func (controller *KakuyomuController) KakuyomuChapterPage(ctx *fiber.Ctx) error {
+	var request request.ChapterNovelRequest
+	err := ctx.BodyParser(&request)
+	if err != nil {
+		exception.PanicIfNeeded(err)
+	}
+
+	response, err := controller.KakuyomuService.KakuyomuChapterPage(ctx, &request)
 	if err != nil {
 		panic(exception.GeneralError{
 			Message: err.Error(),

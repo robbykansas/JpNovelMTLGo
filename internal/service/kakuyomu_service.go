@@ -9,4 +9,5 @@ import (
 
 type KakuyomuService interface {
 	KakuyomuListChapter(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*response.ListChapterNovelResponse, error)
+	KakuyomuChapterPage(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*response.GetChapterPageResponse, error)
 }
