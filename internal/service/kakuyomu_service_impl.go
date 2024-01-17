@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"jpnovelmtlgo/internal/exception"
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
@@ -29,10 +30,12 @@ func (service *KakuyomuServiceImpl) KakuyomuListChapter(ctx *fiber.Ctx, params *
 	c := colly.NewCollector()
 
 	c.OnHTML("._workId__toc___I_tx ", func(e *colly.HTMLElement) {
-		// default1 := ".WorkTocSection_link__ocg9K"
-		// default2 := ".WorkTocSection_title__H2007"
 		e.ForEach(".NewBox_box__45ont .WorkTocAccordion_contents__6nJhY", func(_ int, el *colly.HTMLElement) {
-			el.ForEach(".WorkTocSection_link__ocg9K", func(_ int, es *colly.HTMLElement) {
+			fmt.Println("access this <<<<<<<<<")
+			if e.Text == "" {
+				fmt.Println("<<<<<<<<< this")
+			}
+			el.ForEach(".NewBox_box__45ont", func(_ int, es *colly.HTMLElement) {
 				title := es.ChildText(".WorkTocSection_title__H2007")
 				url := es.Attr("href")
 
