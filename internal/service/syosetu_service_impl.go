@@ -21,10 +21,10 @@ type SyosetuServiceImpl struct {
 }
 
 func NewSyosetuService(
-	TranslateRepository *repository.TranslateRepository,
+	TranslateRepository repository.TranslateRepository,
 ) SyosetuService {
 	return &SyosetuServiceImpl{
-		TranslateRepository: *TranslateRepository,
+		TranslateRepository: TranslateRepository,
 	}
 }
 

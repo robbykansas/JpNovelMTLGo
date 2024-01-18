@@ -20,7 +20,7 @@ func main() {
 	TranslateRepository := repository.NewTranslateRepository(&configuration)
 
 	// Setup Service
-	SyosetuService := service.NewSyosetuService(&TranslateRepository)
+	SyosetuService := service.NewSyosetuService(TranslateRepository)
 	KakuyomuService := service.NewKakuyomuService(&TranslateRepository)
 
 	// Setup Controller
