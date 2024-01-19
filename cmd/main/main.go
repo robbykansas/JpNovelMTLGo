@@ -21,7 +21,7 @@ func main() {
 
 	// Setup Service
 	SyosetuService := service.NewSyosetuService(TranslateRepository)
-	KakuyomuService := service.NewKakuyomuService(&TranslateRepository)
+	KakuyomuService := service.NewKakuyomuService(TranslateRepository)
 
 	// Setup Controller
 	HealthcheckController := controller.NewHealthcheckController(&configuration)

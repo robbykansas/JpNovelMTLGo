@@ -1,6 +1,7 @@
 package test
 
 import (
+	"errors"
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
 	"jpnovelmtlgo/internal/service"
@@ -15,6 +16,7 @@ import (
 type UnitTestSuite struct {
 	suite.Suite
 	syosetuService          service.SyosetuService
+	kakuyomuService         service.KakuyomuService
 	MockTranslateRepository *mocks.TranslateRepository
 }
 
@@ -25,8 +27,10 @@ func TestUnitTestSuite(t *testing.T) {
 func (uts *UnitTestSuite) SetupSuite() {
 	MockTranslateRepository := mocks.TranslateRepository{}
 	syosetuService := service.NewSyosetuService(&MockTranslateRepository)
+	kakuyomuService := service.NewKakuyomuService(&MockTranslateRepository)
 
 	uts.syosetuService = syosetuService
+	uts.kakuyomuService = kakuyomuService
 	uts.MockTranslateRepository = &MockTranslateRepository
 }
 
@@ -62,6 +66,42 @@ func (uts *UnitTestSuite) TestListChapterNovel() {
 	res, err := uts.syosetuService.ListChapterNovel(context, payload)
 	uts.Equal(resultMock, res)
 	uts.Nil(err)
+}
+
+func (uts *UnitTestSuite) TestListChapterNovel_Error() {
+	mockData := []request.TranslateListRequest{
+		{
+			Title:   "example1",
+			Url:     "url1",
+			TitleEn: "exampleEn",
+			Order:   1,
+		},
+		{
+			Title:   "example2",
+			Url:     "url2",
+			TitleEn: "exampleEn2",
+			Order:   2,
+		},
+	}
+
+	resultMock := &response.ListChapterNovelResponse{
+		StatusCode: "200",
+		Data:       mockData,
+	}
+
+	testError := errors.New("error")
+
+	uts.MockTranslateRepository.On("TranslateList", mock.AnythingOfType("[]request.TranslateListRequest")).Return(nil, testError)
+
+	payload := &request.ChapterNovelRequest{
+		Url: "https://ncode.syosetu.com/n6093en/",
+	}
+
+	context := &fiber.Ctx{}
+
+	res, err := uts.syosetuService.ListChapterNovel(context, payload)
+	uts.Equal(resultMock, res)
+	uts.EqualError(err, "Please wait a few minutes before you try again.")
 }
 
 func (uts *UnitTestSuite) TestGetChapterPage() {
