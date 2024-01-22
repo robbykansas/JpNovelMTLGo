@@ -1,6 +1,7 @@
 package service
 
 import (
+	"jpnovelmtlgo/internal/model"
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
 
@@ -8,7 +9,7 @@ import (
 )
 
 type SyosetuService interface {
-	ListChapterNovel(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*response.ListChapterNovelResponse, error)
+	ListChapterNovel(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*model.BaseResponse[[]request.TranslateListRequest], error)
 	GetChapterPage(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*response.GetChapterPageResponse, error)
 	JpEpub(ctx *fiber.Ctx, params *request.ConvertNovelRequest) (*fiber.Map, error)
 	EnEpub(ctx *fiber.Ctx, params *request.ConvertNovelRequest) (*fiber.Map, error)

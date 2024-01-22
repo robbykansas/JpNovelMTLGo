@@ -5,3 +5,9 @@ type DefaultResponse struct {
 	StatusCode   string `json:"statusCode"`
 	Message      string `json:"message"`
 }
+
+type BaseResponse[T any] struct {
+	StatusCode string `json:"statusCode"`
+	Message    string `json:"message"`
+	Data       T      `json:"data"`
+}

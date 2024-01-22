@@ -3,6 +3,8 @@
 package mocks
 
 import (
+	model "jpnovelmtlgo/internal/model"
+
 	mock "github.com/stretchr/testify/mock"
 
 	request "jpnovelmtlgo/internal/model/request"
@@ -76,23 +78,23 @@ func (_m *TranslateRepository) TranslateInfo(params *request.NovelInfo) (*respon
 }
 
 // TranslateList provides a mock function with given fields: params
-func (_m *TranslateRepository) TranslateList(params []request.TranslateListRequest) (*response.ListChapterNovelResponse, error) {
+func (_m *TranslateRepository) TranslateList(params []request.TranslateListRequest) (*model.BaseResponse[[]request.TranslateListRequest], error) {
 	ret := _m.Called(params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for TranslateList")
 	}
 
-	var r0 *response.ListChapterNovelResponse
+	var r0 *model.BaseResponse[[]request.TranslateListRequest]
 	var r1 error
-	if rf, ok := ret.Get(0).(func([]request.TranslateListRequest) (*response.ListChapterNovelResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func([]request.TranslateListRequest) (*model.BaseResponse[[]request.TranslateListRequest], error)); ok {
 		return rf(params)
 	}
-	if rf, ok := ret.Get(0).(func([]request.TranslateListRequest) *response.ListChapterNovelResponse); ok {
+	if rf, ok := ret.Get(0).(func([]request.TranslateListRequest) *model.BaseResponse[[]request.TranslateListRequest]); ok {
 		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*response.ListChapterNovelResponse)
+			r0 = ret.Get(0).(*model.BaseResponse[[]request.TranslateListRequest])
 		}
 	}
 

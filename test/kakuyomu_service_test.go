@@ -1,6 +1,7 @@
 package test
 
 import (
+	"jpnovelmtlgo/internal/model"
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
 
@@ -24,8 +25,9 @@ func (uts *UnitTestSuite) TestKakuyomuListChapter() {
 		},
 	}
 
-	resultMock := &response.ListChapterNovelResponse{
+	resultMock := &model.BaseResponse[[]request.TranslateListRequest]{
 		StatusCode: "200",
+		Message:    "Success",
 		Data:       mockData,
 	}
 

@@ -2,6 +2,7 @@ package service
 
 import (
 	"jpnovelmtlgo/internal/exception"
+	"jpnovelmtlgo/internal/model"
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
 	"jpnovelmtlgo/internal/repository"
@@ -23,7 +24,7 @@ func NewKakuyomuService(
 	}
 }
 
-func (service *KakuyomuServiceImpl) KakuyomuListChapter(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*response.ListChapterNovelResponse, error) {
+func (service *KakuyomuServiceImpl) KakuyomuListChapter(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*model.BaseResponse[[]request.TranslateListRequest], error) {
 	var listChapter []request.TranslateListRequest
 
 	c := colly.NewCollector()

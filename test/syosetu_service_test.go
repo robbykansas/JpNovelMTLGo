@@ -2,6 +2,7 @@ package test
 
 import (
 	"errors"
+	"jpnovelmtlgo/internal/model"
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
 	"jpnovelmtlgo/internal/service"
@@ -50,8 +51,9 @@ func (uts *UnitTestSuite) TestListChapterNovel() {
 		},
 	}
 
-	resultMock := &response.ListChapterNovelResponse{
+	resultMock := &model.BaseResponse[[]request.TranslateListRequest]{
 		StatusCode: "200",
+		Message:    "Success",
 		Data:       mockData,
 	}
 
@@ -84,8 +86,9 @@ func (uts *UnitTestSuite) TestListChapterNovel_Error() {
 		},
 	}
 
-	resultMock := &response.ListChapterNovelResponse{
+	resultMock := &model.BaseResponse[[]request.TranslateListRequest]{
 		StatusCode: "200",
+		Message:    "Success",
 		Data:       mockData,
 	}
 

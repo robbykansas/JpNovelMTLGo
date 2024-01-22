@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"jpnovelmtlgo/internal/config"
 	"jpnovelmtlgo/internal/exception"
+	"jpnovelmtlgo/internal/model"
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
 	"net/http"
@@ -28,6 +29,7 @@ func NewTranslateRepository(
 func (repository *TranslateRepositoryImpl) TranslateChapter(params *request.TranslateChapterRequest) (*response.GetChapterPageResponse, error) {
 	translateTitle := make(chan string)
 	translateChapter := make(chan string)
+	errorChannel := make(chan error)
 
 	payloadTitleRequest := &request.TranslateRequest{
 		Q:      params.Title,
@@ -43,11 +45,16 @@ func (repository *TranslateRepositoryImpl) TranslateChapter(params *request.Tran
 		Format: "",
 	}
 
-	go repository.TranslateWord(payloadTitleRequest, translateTitle)
-	go repository.TranslateWord(payloadChapterRequest, translateChapter)
+	go repository.TranslateWord(payloadTitleRequest, translateTitle, errorChannel)
+	go repository.TranslateWord(payloadChapterRequest, translateChapter, errorChannel)
 
 	title := <-translateTitle
 	chapter := <-translateChapter
+	errData := <-errorChannel
+	if errData != nil {
+		return nil, errData
+	}
+
 	result := &response.GetChapterPageResponse{
 		Title:   title,
 		Chapter: chapter,
@@ -59,25 +66,25 @@ func (repository *TranslateRepositoryImpl) TranslateChapter(params *request.Tran
 	return result, nil
 }
 
-func (repository *TranslateRepositoryImpl) TranslateWord(params *request.TranslateRequest, channelWord chan<- string) {
+func (repository *TranslateRepositoryImpl) TranslateWord(params *request.TranslateRequest, channelWord chan<- string, errorChannel chan<- error) {
 	client := &http.Client{}
 
 	jsonData, err := json.Marshal(params)
 	if err != nil {
-		exception.PanicIfNeeded(err)
+		errorChannel <- err
 	}
 
 	payload := strings.NewReader(string(jsonData))
 
 	req, err := http.NewRequest("POST", repository.Configuration.Get("TRANSLATE_URL"), payload)
 	if err != nil {
-		exception.PanicIfNeeded(err)
+		errorChannel <- err
 	}
 
 	req.Header.Add("Content-Type", "application/json")
 	res, err := client.Do(req)
 	if err != nil {
-		exception.PanicIfNeeded(err)
+		errorChannel <- err
 	}
 
 	translatedText := &response.TranslateResponse{}
@@ -87,7 +94,7 @@ func (repository *TranslateRepositoryImpl) TranslateWord(params *request.Transla
 	channelWord <- translatedText.TranslatedText
 }
 
-func (repository *TranslateRepositoryImpl) TranslateList(params []request.TranslateListRequest) (*response.ListChapterNovelResponse, error) {
+func (repository *TranslateRepositoryImpl) TranslateList(params []request.TranslateListRequest) (*model.BaseResponse[[]request.TranslateListRequest], error) {
 	var wg sync.WaitGroup
 	var translatedList []request.TranslateListRequest
 	var count = 0
@@ -115,8 +122,9 @@ func (repository *TranslateRepositoryImpl) TranslateList(params []request.Transl
 		translatedList = append(translatedList, title)
 	}
 
-	result := &response.ListChapterNovelResponse{
+	result := &model.BaseResponse[[]request.TranslateListRequest]{
 		StatusCode: "200",
+		Message:    "Success",
 		Data:       translatedList,
 	}
 
@@ -167,6 +175,7 @@ func (repository *TranslateRepositoryImpl) TranslateEachTitle(params request.Tra
 func (repository *TranslateRepositoryImpl) TranslateInfo(params *request.NovelInfo) (*response.TranslatedInfoResponse, error) {
 	translatedTitle := make(chan string)
 	translatedAuthor := make(chan string)
+	errorChannel := make(chan error)
 
 	payloadTitle := &request.TranslateRequest{
 		Q:      params.Title,
@@ -182,11 +191,16 @@ func (repository *TranslateRepositoryImpl) TranslateInfo(params *request.NovelIn
 		Format: "",
 	}
 
-	go repository.TranslateWord(payloadTitle, translatedTitle)
-	go repository.TranslateWord(&payloadAuthor, translatedAuthor)
+	go repository.TranslateWord(payloadTitle, translatedTitle, errorChannel)
+	go repository.TranslateWord(&payloadAuthor, translatedAuthor, errorChannel)
 
 	title := <-translatedTitle
 	author := <-translatedAuthor
+	errData := <-errorChannel
+	if errData != nil {
+		return nil, errData
+	}
+
 	result := &response.TranslatedInfoResponse{
 		Title:  title,
 		Author: author,

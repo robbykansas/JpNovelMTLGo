@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"jpnovelmtlgo/internal/exception"
+	"jpnovelmtlgo/internal/model"
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
 	"jpnovelmtlgo/internal/repository"
@@ -28,7 +29,7 @@ func NewSyosetuService(
 	}
 }
 
-func (service *SyosetuServiceImpl) ListChapterNovel(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*response.ListChapterNovelResponse, error) {
+func (service *SyosetuServiceImpl) ListChapterNovel(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*model.BaseResponse[[]request.TranslateListRequest], error) {
 	var listChapter []request.TranslateListRequest
 
 	c := colly.NewCollector()

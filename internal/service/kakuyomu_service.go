@@ -1,6 +1,7 @@
 package service
 
 import (
+	"jpnovelmtlgo/internal/model"
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
 
@@ -8,6 +9,6 @@ import (
 )
 
 type KakuyomuService interface {
-	KakuyomuListChapter(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*response.ListChapterNovelResponse, error)
+	KakuyomuListChapter(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*model.BaseResponse[[]request.TranslateListRequest], error)
 	KakuyomuChapterPage(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*response.GetChapterPageResponse, error)
 }
