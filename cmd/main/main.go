@@ -17,7 +17,7 @@ func main() {
 	configuration := config.New()
 
 	// Setup Repository
-	TranslateRepository := repository.NewTranslateRepository(&configuration)
+	TranslateRepository := repository.NewTranslateRepository(configuration)
 
 	// Setup Service
 	SyosetuService := service.NewSyosetuService(TranslateRepository)

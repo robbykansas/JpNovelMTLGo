@@ -5,6 +5,7 @@ import (
 	"jpnovelmtlgo/internal/model"
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
+	"jpnovelmtlgo/internal/repository"
 	"jpnovelmtlgo/internal/service"
 	"jpnovelmtlgo/mocks"
 	"testing"
@@ -16,23 +17,30 @@ import (
 
 type UnitTestSuite struct {
 	suite.Suite
+	translateRepository     repository.TranslateRepository
 	syosetuService          service.SyosetuService
 	kakuyomuService         service.KakuyomuService
 	MockTranslateRepository *mocks.TranslateRepository
+	MockConfig              *mocks.Config
 }
 
 func TestUnitTestSuite(t *testing.T) {
+	t.Setenv("TRANSLATE_URL", "http://127.0.0.1:5001/translate")
 	suite.Run(t, &UnitTestSuite{})
 }
 
 func (uts *UnitTestSuite) SetupSuite() {
 	MockTranslateRepository := mocks.TranslateRepository{}
+	MockConfig := mocks.Config{}
+	translateRepository := repository.NewTranslateRepository(&MockConfig)
 	syosetuService := service.NewSyosetuService(&MockTranslateRepository)
 	kakuyomuService := service.NewKakuyomuService(&MockTranslateRepository)
 
+	uts.translateRepository = translateRepository
 	uts.syosetuService = syosetuService
 	uts.kakuyomuService = kakuyomuService
 	uts.MockTranslateRepository = &MockTranslateRepository
+	uts.MockConfig = &MockConfig
 }
 
 func (uts *UnitTestSuite) TestListChapterNovel() {

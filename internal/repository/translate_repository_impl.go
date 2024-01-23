@@ -19,10 +19,10 @@ type TranslateRepositoryImpl struct {
 }
 
 func NewTranslateRepository(
-	Configuration *config.Config,
+	Configuration config.Config,
 ) TranslateRepository {
 	return &TranslateRepositoryImpl{
-		Configuration: *Configuration,
+		Configuration: Configuration,
 	}
 }
 
@@ -52,6 +52,9 @@ func (repository *TranslateRepositoryImpl) TranslateChapter(params *request.Tran
 	chapter := <-translateChapter
 	errData := <-errorChannel
 	if errData != nil {
+		close(translateTitle)
+		close(translateChapter)
+		close(errorChannel)
 		return nil, errData
 	}
 
@@ -62,6 +65,7 @@ func (repository *TranslateRepositoryImpl) TranslateChapter(params *request.Tran
 
 	close(translateTitle)
 	close(translateChapter)
+	close(errorChannel)
 
 	return result, nil
 }
@@ -198,6 +202,9 @@ func (repository *TranslateRepositoryImpl) TranslateInfo(params *request.NovelIn
 	author := <-translatedAuthor
 	errData := <-errorChannel
 	if errData != nil {
+		close(translatedTitle)
+		close(translatedAuthor)
+		close(errorChannel)
 		return nil, errData
 	}
 
@@ -208,6 +215,7 @@ func (repository *TranslateRepositoryImpl) TranslateInfo(params *request.NovelIn
 
 	close(translatedTitle)
 	close(translatedAuthor)
+	close(errorChannel)
 
 	return result, nil
 }
