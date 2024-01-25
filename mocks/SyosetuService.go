@@ -3,10 +3,9 @@
 package mocks
 
 import (
-	fiber "github.com/gofiber/fiber/v2"
-	mock "github.com/stretchr/testify/mock"
-
 	model "jpnovelmtlgo/internal/model"
+
+	mock "github.com/stretchr/testify/mock"
 
 	request "jpnovelmtlgo/internal/model/request"
 
@@ -18,29 +17,29 @@ type SyosetuService struct {
 	mock.Mock
 }
 
-// EnEpub provides a mock function with given fields: ctx, params
-func (_m *SyosetuService) EnEpub(ctx *fiber.Ctx, params *request.ConvertNovelRequest) (*fiber.Map, error) {
-	ret := _m.Called(ctx, params)
+// EnEpub provides a mock function with given fields: params
+func (_m *SyosetuService) EnEpub(params *request.ConvertNovelRequest) (*model.DefaultResponse, error) {
+	ret := _m.Called(params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for EnEpub")
 	}
 
-	var r0 *fiber.Map
+	var r0 *model.DefaultResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*fiber.Ctx, *request.ConvertNovelRequest) (*fiber.Map, error)); ok {
-		return rf(ctx, params)
+	if rf, ok := ret.Get(0).(func(*request.ConvertNovelRequest) (*model.DefaultResponse, error)); ok {
+		return rf(params)
 	}
-	if rf, ok := ret.Get(0).(func(*fiber.Ctx, *request.ConvertNovelRequest) *fiber.Map); ok {
-		r0 = rf(ctx, params)
+	if rf, ok := ret.Get(0).(func(*request.ConvertNovelRequest) *model.DefaultResponse); ok {
+		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*fiber.Map)
+			r0 = ret.Get(0).(*model.DefaultResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*fiber.Ctx, *request.ConvertNovelRequest) error); ok {
-		r1 = rf(ctx, params)
+	if rf, ok := ret.Get(1).(func(*request.ConvertNovelRequest) error); ok {
+		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -48,29 +47,29 @@ func (_m *SyosetuService) EnEpub(ctx *fiber.Ctx, params *request.ConvertNovelReq
 	return r0, r1
 }
 
-// GetChapterPage provides a mock function with given fields: ctx, params
-func (_m *SyosetuService) GetChapterPage(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*response.GetChapterPageResponse, error) {
-	ret := _m.Called(ctx, params)
+// GetChapterPage provides a mock function with given fields: params
+func (_m *SyosetuService) GetChapterPage(params *request.ChapterNovelRequest) (*model.BaseResponse[*response.GetChapterPageResponse], error) {
+	ret := _m.Called(params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetChapterPage")
 	}
 
-	var r0 *response.GetChapterPageResponse
+	var r0 *model.BaseResponse[*response.GetChapterPageResponse]
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*fiber.Ctx, *request.ChapterNovelRequest) (*response.GetChapterPageResponse, error)); ok {
-		return rf(ctx, params)
+	if rf, ok := ret.Get(0).(func(*request.ChapterNovelRequest) (*model.BaseResponse[*response.GetChapterPageResponse], error)); ok {
+		return rf(params)
 	}
-	if rf, ok := ret.Get(0).(func(*fiber.Ctx, *request.ChapterNovelRequest) *response.GetChapterPageResponse); ok {
-		r0 = rf(ctx, params)
+	if rf, ok := ret.Get(0).(func(*request.ChapterNovelRequest) *model.BaseResponse[*response.GetChapterPageResponse]); ok {
+		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*response.GetChapterPageResponse)
+			r0 = ret.Get(0).(*model.BaseResponse[*response.GetChapterPageResponse])
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*fiber.Ctx, *request.ChapterNovelRequest) error); ok {
-		r1 = rf(ctx, params)
+	if rf, ok := ret.Get(1).(func(*request.ChapterNovelRequest) error); ok {
+		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -78,29 +77,29 @@ func (_m *SyosetuService) GetChapterPage(ctx *fiber.Ctx, params *request.Chapter
 	return r0, r1
 }
 
-// JpEpub provides a mock function with given fields: ctx, params
-func (_m *SyosetuService) JpEpub(ctx *fiber.Ctx, params *request.ConvertNovelRequest) (*fiber.Map, error) {
-	ret := _m.Called(ctx, params)
+// JpEpub provides a mock function with given fields: params
+func (_m *SyosetuService) JpEpub(params *request.ConvertNovelRequest) (*model.DefaultResponse, error) {
+	ret := _m.Called(params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for JpEpub")
 	}
 
-	var r0 *fiber.Map
+	var r0 *model.DefaultResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*fiber.Ctx, *request.ConvertNovelRequest) (*fiber.Map, error)); ok {
-		return rf(ctx, params)
+	if rf, ok := ret.Get(0).(func(*request.ConvertNovelRequest) (*model.DefaultResponse, error)); ok {
+		return rf(params)
 	}
-	if rf, ok := ret.Get(0).(func(*fiber.Ctx, *request.ConvertNovelRequest) *fiber.Map); ok {
-		r0 = rf(ctx, params)
+	if rf, ok := ret.Get(0).(func(*request.ConvertNovelRequest) *model.DefaultResponse); ok {
+		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*fiber.Map)
+			r0 = ret.Get(0).(*model.DefaultResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*fiber.Ctx, *request.ConvertNovelRequest) error); ok {
-		r1 = rf(ctx, params)
+	if rf, ok := ret.Get(1).(func(*request.ConvertNovelRequest) error); ok {
+		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -108,9 +107,9 @@ func (_m *SyosetuService) JpEpub(ctx *fiber.Ctx, params *request.ConvertNovelReq
 	return r0, r1
 }
 
-// ListChapterNovel provides a mock function with given fields: ctx, params
-func (_m *SyosetuService) ListChapterNovel(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*model.BaseResponse[[]request.TranslateListRequest], error) {
-	ret := _m.Called(ctx, params)
+// ListChapterNovel provides a mock function with given fields: params
+func (_m *SyosetuService) ListChapterNovel(params *request.ChapterNovelRequest) (*model.BaseResponse[[]request.TranslateListRequest], error) {
+	ret := _m.Called(params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListChapterNovel")
@@ -118,19 +117,19 @@ func (_m *SyosetuService) ListChapterNovel(ctx *fiber.Ctx, params *request.Chapt
 
 	var r0 *model.BaseResponse[[]request.TranslateListRequest]
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*fiber.Ctx, *request.ChapterNovelRequest) (*model.BaseResponse[[]request.TranslateListRequest], error)); ok {
-		return rf(ctx, params)
+	if rf, ok := ret.Get(0).(func(*request.ChapterNovelRequest) (*model.BaseResponse[[]request.TranslateListRequest], error)); ok {
+		return rf(params)
 	}
-	if rf, ok := ret.Get(0).(func(*fiber.Ctx, *request.ChapterNovelRequest) *model.BaseResponse[[]request.TranslateListRequest]); ok {
-		r0 = rf(ctx, params)
+	if rf, ok := ret.Get(0).(func(*request.ChapterNovelRequest) *model.BaseResponse[[]request.TranslateListRequest]); ok {
+		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.BaseResponse[[]request.TranslateListRequest])
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*fiber.Ctx, *request.ChapterNovelRequest) error); ok {
-		r1 = rf(ctx, params)
+	if rf, ok := ret.Get(1).(func(*request.ChapterNovelRequest) error); ok {
+		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -5,7 +5,6 @@ import (
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -25,26 +24,24 @@ func (uts *UnitTestSuite) TestKakuyomuListChapter() {
 		},
 	}
 
-	resultMock := &model.BaseResponse[[]request.TranslateListRequest]{
+	mockResult := &model.BaseResponse[[]request.TranslateListRequest]{
 		StatusCode: "200",
 		Message:    "Success",
 		Data:       mockData,
 	}
 
-	uts.MockTranslateRepository.On("TranslateList", mock.AnythingOfType("[]request.TranslateListRequest")).Return(resultMock, nil)
+	uts.MockTranslateRepository.On("TranslateList", mock.AnythingOfType("[]request.TranslateListRequest")).Return(mockResult, nil)
 
 	payload := &request.ChapterNovelRequest{
 		Url: "https://kakuyomu.jp/works/16817139558533391541",
 	}
 
-	context := &fiber.Ctx{}
-
-	res, err := uts.kakuyomuService.KakuyomuListChapter(context, payload)
-	uts.Equal(resultMock, res)
+	res, err := uts.kakuyomuService.KakuyomuListChapter(payload)
+	uts.Equal(mockResult, res)
 	uts.Nil(err)
 }
 
-func (uts *UnitTestSuite) KakuyomuChapterPage() {
+func (uts *UnitTestSuite) TestKakuyomuChapterPage() {
 	mockTranslateResponse := &response.GetChapterPageResponse{
 		Title:   "titleEn",
 		Chapter: "chapterEn",
@@ -54,10 +51,15 @@ func (uts *UnitTestSuite) KakuyomuChapterPage() {
 	payload := &request.ChapterNovelRequest{
 		Url: "https://kakuyomu.jp/works/16817330664532961874/episodes/16817330664611957867",
 	}
-	context := &fiber.Ctx{}
 
-	res, err := uts.kakuyomuService.KakuyomuChapterPage(context, payload)
+	mockResult := &model.BaseResponse[*response.GetChapterPageResponse]{
+		StatusCode: "200",
+		Message:    "Success",
+		Data:       mockTranslateResponse,
+	}
 
-	uts.Equal(mockTranslateResponse, res)
+	res, err := uts.kakuyomuService.KakuyomuChapterPage(payload)
+
+	uts.Equal(mockResult, res)
 	uts.Nil(err)
 }

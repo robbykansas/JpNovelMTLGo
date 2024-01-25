@@ -3,10 +3,9 @@
 package mocks
 
 import (
-	fiber "github.com/gofiber/fiber/v2"
-	mock "github.com/stretchr/testify/mock"
-
 	model "jpnovelmtlgo/internal/model"
+
+	mock "github.com/stretchr/testify/mock"
 
 	request "jpnovelmtlgo/internal/model/request"
 
@@ -18,29 +17,29 @@ type KakuyomuService struct {
 	mock.Mock
 }
 
-// KakuyomuChapterPage provides a mock function with given fields: ctx, params
-func (_m *KakuyomuService) KakuyomuChapterPage(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*response.GetChapterPageResponse, error) {
-	ret := _m.Called(ctx, params)
+// KakuyomuChapterPage provides a mock function with given fields: params
+func (_m *KakuyomuService) KakuyomuChapterPage(params *request.ChapterNovelRequest) (*model.BaseResponse[*response.GetChapterPageResponse], error) {
+	ret := _m.Called(params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for KakuyomuChapterPage")
 	}
 
-	var r0 *response.GetChapterPageResponse
+	var r0 *model.BaseResponse[*response.GetChapterPageResponse]
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*fiber.Ctx, *request.ChapterNovelRequest) (*response.GetChapterPageResponse, error)); ok {
-		return rf(ctx, params)
+	if rf, ok := ret.Get(0).(func(*request.ChapterNovelRequest) (*model.BaseResponse[*response.GetChapterPageResponse], error)); ok {
+		return rf(params)
 	}
-	if rf, ok := ret.Get(0).(func(*fiber.Ctx, *request.ChapterNovelRequest) *response.GetChapterPageResponse); ok {
-		r0 = rf(ctx, params)
+	if rf, ok := ret.Get(0).(func(*request.ChapterNovelRequest) *model.BaseResponse[*response.GetChapterPageResponse]); ok {
+		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*response.GetChapterPageResponse)
+			r0 = ret.Get(0).(*model.BaseResponse[*response.GetChapterPageResponse])
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*fiber.Ctx, *request.ChapterNovelRequest) error); ok {
-		r1 = rf(ctx, params)
+	if rf, ok := ret.Get(1).(func(*request.ChapterNovelRequest) error); ok {
+		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -48,9 +47,9 @@ func (_m *KakuyomuService) KakuyomuChapterPage(ctx *fiber.Ctx, params *request.C
 	return r0, r1
 }
 
-// KakuyomuListChapter provides a mock function with given fields: ctx, params
-func (_m *KakuyomuService) KakuyomuListChapter(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*model.BaseResponse[[]request.TranslateListRequest], error) {
-	ret := _m.Called(ctx, params)
+// KakuyomuListChapter provides a mock function with given fields: params
+func (_m *KakuyomuService) KakuyomuListChapter(params *request.ChapterNovelRequest) (*model.BaseResponse[[]request.TranslateListRequest], error) {
+	ret := _m.Called(params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for KakuyomuListChapter")
@@ -58,19 +57,19 @@ func (_m *KakuyomuService) KakuyomuListChapter(ctx *fiber.Ctx, params *request.C
 
 	var r0 *model.BaseResponse[[]request.TranslateListRequest]
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*fiber.Ctx, *request.ChapterNovelRequest) (*model.BaseResponse[[]request.TranslateListRequest], error)); ok {
-		return rf(ctx, params)
+	if rf, ok := ret.Get(0).(func(*request.ChapterNovelRequest) (*model.BaseResponse[[]request.TranslateListRequest], error)); ok {
+		return rf(params)
 	}
-	if rf, ok := ret.Get(0).(func(*fiber.Ctx, *request.ChapterNovelRequest) *model.BaseResponse[[]request.TranslateListRequest]); ok {
-		r0 = rf(ctx, params)
+	if rf, ok := ret.Get(0).(func(*request.ChapterNovelRequest) *model.BaseResponse[[]request.TranslateListRequest]); ok {
+		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.BaseResponse[[]request.TranslateListRequest])
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*fiber.Ctx, *request.ChapterNovelRequest) error); ok {
-		r1 = rf(ctx, params)
+	if rf, ok := ret.Get(1).(func(*request.ChapterNovelRequest) error); ok {
+		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)
 	}

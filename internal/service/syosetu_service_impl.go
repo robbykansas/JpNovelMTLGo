@@ -14,7 +14,6 @@ import (
 
 	"github.com/go-shiori/go-epub"
 	"github.com/gocolly/colly/v2"
-	"github.com/gofiber/fiber/v2"
 )
 
 type SyosetuServiceImpl struct {
@@ -29,7 +28,7 @@ func NewSyosetuService(
 	}
 }
 
-func (service *SyosetuServiceImpl) ListChapterNovel(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*model.BaseResponse[[]request.TranslateListRequest], error) {
+func (service *SyosetuServiceImpl) ListChapterNovel(params *request.ChapterNovelRequest) (*model.BaseResponse[[]request.TranslateListRequest], error) {
 	var listChapter []request.TranslateListRequest
 
 	c := colly.NewCollector()
@@ -68,7 +67,7 @@ func (service *SyosetuServiceImpl) ListChapterNovel(ctx *fiber.Ctx, params *requ
 	return res, nil
 }
 
-func (service *SyosetuServiceImpl) GetChapterPage(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*response.GetChapterPageResponse, error) {
+func (service *SyosetuServiceImpl) GetChapterPage(params *request.ChapterNovelRequest) (*model.BaseResponse[*response.GetChapterPageResponse], error) {
 	var title string
 	var honbun string
 	c := colly.NewCollector()
@@ -100,10 +99,16 @@ func (service *SyosetuServiceImpl) GetChapterPage(ctx *fiber.Ctx, params *reques
 		})
 	}
 
-	return getTranslate, nil
+	result := &model.BaseResponse[*response.GetChapterPageResponse]{
+		StatusCode: "200",
+		Message:    "Success",
+		Data:       getTranslate,
+	}
+
+	return result, nil
 }
 
-func (service *SyosetuServiceImpl) JpEpub(ctx *fiber.Ctx, params *request.ConvertNovelRequest) (*fiber.Map, error) {
+func (service *SyosetuServiceImpl) JpEpub(params *request.ConvertNovelRequest) (*model.DefaultResponse, error) {
 	chapterNovel := make(chan request.ChapterContent)
 	var listChapter []request.ChapterContent
 	var wg sync.WaitGroup
@@ -176,8 +181,10 @@ func (service *SyosetuServiceImpl) JpEpub(ctx *fiber.Ctx, params *request.Conver
 		})
 	}
 
-	res := &fiber.Map{
-		"success": true,
+	res := &model.DefaultResponse{
+		IsSuccessful: true,
+		StatusCode:   "200",
+		Message:      "Success",
 	}
 	return res, nil
 }
@@ -213,7 +220,7 @@ func (service *SyosetuServiceImpl) JpChapter(params *request.ListChapterByUrl, w
 	scrapingData <- content
 }
 
-func (service *SyosetuServiceImpl) EnEpub(ctx *fiber.Ctx, params *request.ConvertNovelRequest) (*fiber.Map, error) {
+func (service *SyosetuServiceImpl) EnEpub(params *request.ConvertNovelRequest) (*model.DefaultResponse, error) {
 	chapterNovel := make(chan request.ChapterContent)
 	var listChapter []request.ChapterContent
 	var wg sync.WaitGroup
@@ -308,8 +315,10 @@ func (service *SyosetuServiceImpl) EnEpub(ctx *fiber.Ctx, params *request.Conver
 		})
 	}
 
-	res := &fiber.Map{
-		"success": true,
+	res := &model.DefaultResponse{
+		IsSuccessful: true,
+		StatusCode:   "200",
+		Message:      "Success",
 	}
 	return res, nil
 }

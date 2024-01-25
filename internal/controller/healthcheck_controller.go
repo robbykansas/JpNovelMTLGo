@@ -1,21 +1,13 @@
 package controller
 
 import (
-	"jpnovelmtlgo/internal/config"
-
 	"github.com/gofiber/fiber/v2"
 )
 
-type HealthcheckController struct {
-	Configuration config.Config
-}
+type HealthcheckController struct{}
 
-func NewHealthcheckController(
-	configuration *config.Config,
-) HealthcheckController {
-	return HealthcheckController{
-		Configuration: *configuration,
-	}
+func NewHealthcheckController() HealthcheckController {
+	return HealthcheckController{}
 }
 
 func (controller *HealthcheckController) Route(app *fiber.App) {

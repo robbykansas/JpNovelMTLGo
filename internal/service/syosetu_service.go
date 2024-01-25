@@ -4,13 +4,11 @@ import (
 	"jpnovelmtlgo/internal/model"
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 type SyosetuService interface {
-	ListChapterNovel(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*model.BaseResponse[[]request.TranslateListRequest], error)
-	GetChapterPage(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*response.GetChapterPageResponse, error)
-	JpEpub(ctx *fiber.Ctx, params *request.ConvertNovelRequest) (*fiber.Map, error)
-	EnEpub(ctx *fiber.Ctx, params *request.ConvertNovelRequest) (*fiber.Map, error)
+	ListChapterNovel(params *request.ChapterNovelRequest) (*model.BaseResponse[[]request.TranslateListRequest], error)
+	GetChapterPage(params *request.ChapterNovelRequest) (*model.BaseResponse[*response.GetChapterPageResponse], error)
+	JpEpub(params *request.ConvertNovelRequest) (*model.DefaultResponse, error)
+	EnEpub(params *request.ConvertNovelRequest) (*model.DefaultResponse, error)
 }

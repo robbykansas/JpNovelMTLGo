@@ -13,10 +13,10 @@ type SyosetuController struct {
 }
 
 func NewSyosetuController(
-	SyosetuService *service.SyosetuService,
+	SyosetuService service.SyosetuService,
 ) SyosetuController {
 	return SyosetuController{
-		SyosetuService: *SyosetuService,
+		SyosetuService: SyosetuService,
 	}
 }
 
@@ -34,7 +34,7 @@ func (controller *SyosetuController) ListChapterNovel(ctx *fiber.Ctx) error {
 		exception.PanicIfNeeded(err)
 	}
 
-	response, err := controller.SyosetuService.ListChapterNovel(ctx, &request)
+	response, err := controller.SyosetuService.ListChapterNovel(&request)
 	if err != nil {
 		panic(exception.GeneralError{
 			Message: err.Error(),
@@ -51,7 +51,7 @@ func (controller *SyosetuController) GetChapterNovel(ctx *fiber.Ctx) error {
 		exception.PanicIfNeeded(err)
 	}
 
-	response, err := controller.SyosetuService.GetChapterPage(ctx, &request)
+	response, err := controller.SyosetuService.GetChapterPage(&request)
 	if err != nil {
 		panic(exception.GeneralError{
 			Message: err.Error(),
@@ -68,7 +68,7 @@ func (controller *SyosetuController) JpEpub(ctx *fiber.Ctx) error {
 		exception.PanicIfNeeded(err)
 	}
 
-	response, err := controller.SyosetuService.JpEpub(ctx, &request)
+	response, err := controller.SyosetuService.JpEpub(&request)
 	if err != nil {
 		panic(exception.GeneralError{
 			Message: err.Error(),
@@ -85,7 +85,7 @@ func (controller *SyosetuController) EnEpub(ctx *fiber.Ctx) error {
 		exception.PanicIfNeeded(err)
 	}
 
-	response, err := controller.SyosetuService.EnEpub(ctx, &request)
+	response, err := controller.SyosetuService.EnEpub(&request)
 	if err != nil {
 		panic(exception.GeneralError{
 			Message: err.Error(),

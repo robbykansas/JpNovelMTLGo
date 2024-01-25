@@ -24,9 +24,9 @@ func main() {
 	KakuyomuService := service.NewKakuyomuService(TranslateRepository)
 
 	// Setup Controller
-	HealthcheckController := controller.NewHealthcheckController(&configuration)
-	SyosetuController := controller.NewSyosetuController(&SyosetuService)
-	KakuyomuController := controller.NewKakuyomuController(&KakuyomuService)
+	HealthcheckController := controller.NewHealthcheckController()
+	SyosetuController := controller.NewSyosetuController(SyosetuService)
+	KakuyomuController := controller.NewKakuyomuController(KakuyomuService)
 
 	// Setup Fiber
 	app := fiber.New(config.NewFiberConfig())

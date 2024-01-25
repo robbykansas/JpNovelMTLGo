@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"jpnovelmtlgo/internal/exception"
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/service"
@@ -13,10 +14,10 @@ type KakuyomuController struct {
 }
 
 func NewKakuyomuController(
-	KakuyomuService *service.KakuyomuService,
+	KakuyomuService service.KakuyomuService,
 ) KakuyomuController {
 	return KakuyomuController{
-		KakuyomuService: *KakuyomuService,
+		KakuyomuService: KakuyomuService,
 	}
 }
 
@@ -32,7 +33,7 @@ func (controller *KakuyomuController) KakuyomuListChapter(ctx *fiber.Ctx) error 
 		exception.PanicIfNeeded(err)
 	}
 
-	response, err := controller.KakuyomuService.KakuyomuListChapter(ctx, &request)
+	response, err := controller.KakuyomuService.KakuyomuListChapter(&request)
 	if err != nil {
 		panic(exception.GeneralError{
 			Message: err.Error(),
@@ -49,11 +50,13 @@ func (controller *KakuyomuController) KakuyomuChapterPage(ctx *fiber.Ctx) error 
 		exception.PanicIfNeeded(err)
 	}
 
-	response, err := controller.KakuyomuService.KakuyomuChapterPage(ctx, &request)
+	response, err := controller.KakuyomuService.KakuyomuChapterPage(&request)
 	if err != nil {
-		panic(exception.GeneralError{
-			Message: err.Error(),
-		})
+		fmt.Println(err, "<<<<<<<< error")
+		panic(err)
+		// panic(exception.GeneralError{
+		// 	Message: err.Error(),
+		// })
 	}
 
 	return ctx.Status(200).JSON(response)

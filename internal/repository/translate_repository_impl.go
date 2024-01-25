@@ -48,31 +48,28 @@ func (repository *TranslateRepositoryImpl) TranslateChapter(params *request.Tran
 	go repository.TranslateWord(payloadTitleRequest, translateTitle, errorChannel)
 	go repository.TranslateWord(payloadChapterRequest, translateChapter, errorChannel)
 
-	title := <-translateTitle
-	chapter := <-translateChapter
-	errData := <-errorChannel
-	if errData != nil {
+	select {
+	case err := <-errorChannel:
+		close(errorChannel)
+		return nil, err
+	default:
+		title := <-translateTitle
+		chapter := <-translateChapter
+		result := &response.GetChapterPageResponse{
+			Title:   title,
+			Chapter: chapter,
+		}
+
 		close(translateTitle)
 		close(translateChapter)
-		close(errorChannel)
-		return nil, errData
+
+		return result, nil
 	}
-
-	result := &response.GetChapterPageResponse{
-		Title:   title,
-		Chapter: chapter,
-	}
-
-	close(translateTitle)
-	close(translateChapter)
-	close(errorChannel)
-
-	return result, nil
 }
 
 func (repository *TranslateRepositoryImpl) TranslateWord(params *request.TranslateRequest, channelWord chan<- string, errorChannel chan<- error) {
 	client := &http.Client{}
-
+	fmt.Println("<<<<<<<<<<<<<<<<<< access this")
 	jsonData, err := json.Marshal(params)
 	if err != nil {
 		errorChannel <- err
@@ -198,26 +195,23 @@ func (repository *TranslateRepositoryImpl) TranslateInfo(params *request.NovelIn
 	go repository.TranslateWord(payloadTitle, translatedTitle, errorChannel)
 	go repository.TranslateWord(&payloadAuthor, translatedAuthor, errorChannel)
 
-	title := <-translatedTitle
-	author := <-translatedAuthor
-	errData := <-errorChannel
-	if errData != nil {
+	select {
+	case err := <-errorChannel:
+		close(errorChannel)
+		return nil, err
+	default:
+		title := <-translatedTitle
+		author := <-translatedAuthor
+		result := &response.TranslatedInfoResponse{
+			Title:  title,
+			Author: author,
+		}
+
 		close(translatedTitle)
 		close(translatedAuthor)
-		close(errorChannel)
-		return nil, errData
+
+		return result, nil
 	}
-
-	result := &response.TranslatedInfoResponse{
-		Title:  title,
-		Author: author,
-	}
-
-	close(translatedTitle)
-	close(translatedAuthor)
-	close(errorChannel)
-
-	return result, nil
 }
 
 func (repository *TranslateRepositoryImpl) TranslateListChapter(params []request.ChapterContent) ([]response.TranslatedListChapterResponse, error) {

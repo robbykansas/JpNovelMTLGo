@@ -9,7 +9,6 @@ import (
 	"sort"
 
 	"github.com/gocolly/colly/v2"
-	"github.com/gofiber/fiber/v2"
 )
 
 type KakuyomuServiceImpl struct {
@@ -24,7 +23,7 @@ func NewKakuyomuService(
 	}
 }
 
-func (service *KakuyomuServiceImpl) KakuyomuListChapter(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*model.BaseResponse[[]request.TranslateListRequest], error) {
+func (service *KakuyomuServiceImpl) KakuyomuListChapter(params *request.ChapterNovelRequest) (*model.BaseResponse[[]request.TranslateListRequest], error) {
 	var listChapter []request.TranslateListRequest
 
 	c := colly.NewCollector()
@@ -66,7 +65,7 @@ func (service *KakuyomuServiceImpl) KakuyomuListChapter(ctx *fiber.Ctx, params *
 	return res, nil
 }
 
-func (service *KakuyomuServiceImpl) KakuyomuChapterPage(ctx *fiber.Ctx, params *request.ChapterNovelRequest) (*response.GetChapterPageResponse, error) {
+func (service *KakuyomuServiceImpl) KakuyomuChapterPage(params *request.ChapterNovelRequest) (*model.BaseResponse[*response.GetChapterPageResponse], error) {
 	var title string
 	var honbun string
 
@@ -99,5 +98,11 @@ func (service *KakuyomuServiceImpl) KakuyomuChapterPage(ctx *fiber.Ctx, params *
 		})
 	}
 
-	return getTranslate, nil
+	result := &model.BaseResponse[*response.GetChapterPageResponse]{
+		StatusCode: "200",
+		Message:    "Success",
+		Data:       getTranslate,
+	}
+
+	return result, nil
 }
