@@ -2,8 +2,6 @@ package test
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"jpnovelmtlgo/internal/model"
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
@@ -12,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/stretchr/testify/assert"
 )
 
 func (uts *UnitTestSuite) TestKakuyomuListChapterController() {
@@ -51,20 +48,6 @@ func (uts *UnitTestSuite) TestKakuyomuListChapterController() {
 	uts.Equal(http.StatusOK, resp.StatusCode)
 }
 
-func (uts *UnitTestSuite) TestKakuyomuListChapterController_error() {
-	errData := errors.New("error data")
-
-	payload := &request.ChapterNovelRequest{
-		Url: "https://kakuyomu.jp/works/16817139558533391541",
-	}
-
-	uts.MockKakuyomuService.On("KakuyomuListChapter", payload).Return(nil, errData)
-
-	assert.Panics(uts.T(), func() {
-		uts.kakuyomuController.KakuyomuListChapter(&fiber.Ctx{})
-	})
-}
-
 func (uts *UnitTestSuite) TestKakuyomuChapterPageController() {
 	mockTranslateResponse := &response.GetChapterPageResponse{
 		Title:   "titleEn",
@@ -87,26 +70,22 @@ func (uts *UnitTestSuite) TestKakuyomuChapterPageController() {
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, _ := uts.app.Test(req)
-
-	fmt.Println(resp, "<<<< resp")
 	uts.Equal(http.StatusOK, resp.StatusCode)
 }
 
-// func (uts *UnitTestSuite) TestKakuyomuChapterPageController_error() {
-// 	errData := errors.New("error data")
+func (uts *UnitTestSuite) TestKakuyomuChapterPage_Error() {
+	errData := fiber.NewError(fiber.StatusBadRequest, "error mock")
 
-// 	payload := &request.ChapterNovelRequest{
-// 		Url: "https://kakuyomu.jp/works/16817139558533391541",
-// 	}
-// 	uts.MockKakuyomuService.On("KakuyomuChapterPage", payload).Return(nil, errData)
+	payload := &request.ChapterNovelRequest{
+		Url: "https://kakuyomu.jp/works/16817330664532961874",
+	}
+	uts.MockKakuyomuService.On("KakuyomuChapterPage", payload).Return(nil, errData)
 
-// 	payloadByte, _ := json.Marshal(payload)
-// 	body := string(payloadByte)
-// 	req := httptest.NewRequest(http.MethodPost, "/kakuyomu/chapter", strings.NewReader(body))
-// 	req.Header.Set("Content-Type", "application/json")
+	payloadByte, _ := json.Marshal(payload)
+	body := string(payloadByte)
+	req := httptest.NewRequest(http.MethodPost, "/kakuyomu/chapter", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
 
-// 	_, err := uts.app.Test(req)
-// 	if err != nil {
-// 		uts.Fail("Expected to get error", err)
-// 	}
-// }
+	resp, _ := uts.app.Test(req)
+	uts.Equal(http.StatusBadRequest, resp.StatusCode)
+}

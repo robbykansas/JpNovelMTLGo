@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"jpnovelmtlgo/internal/exception"
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/service"
@@ -47,16 +46,14 @@ func (controller *KakuyomuController) KakuyomuChapterPage(ctx *fiber.Ctx) error 
 	var request request.ChapterNovelRequest
 	err := ctx.BodyParser(&request)
 	if err != nil {
+		// Generate this error with remove header content-type
 		exception.PanicIfNeeded(err)
 	}
 
 	response, err := controller.KakuyomuService.KakuyomuChapterPage(&request)
 	if err != nil {
-		fmt.Println(err, "<<<<<<<< error")
-		panic(err)
-		// panic(exception.GeneralError{
-		// 	Message: err.Error(),
-		// })
+		// fmt.Println(err.(*fiber.Error).Code)
+		return exception.HandlerError(ctx, err)
 	}
 
 	return ctx.Status(200).JSON(response)

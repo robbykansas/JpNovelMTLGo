@@ -1,7 +1,6 @@
 package service
 
 import (
-	"jpnovelmtlgo/internal/exception"
 	"jpnovelmtlgo/internal/model"
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
@@ -9,6 +8,7 @@ import (
 	"sort"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/gofiber/fiber/v2"
 )
 
 type KakuyomuServiceImpl struct {
@@ -46,16 +46,12 @@ func (service *KakuyomuServiceImpl) KakuyomuListChapter(params *request.ChapterN
 
 	err := c.Visit(params.Url)
 	if err != nil {
-		panic(exception.GeneralError{
-			Message: err.Error(),
-		})
+		return nil, err
 	}
 
 	res, err := service.TranslateRepository.TranslateList(listChapter)
 	if err != nil {
-		panic(exception.GeneralError{
-			Message: err.Error(),
-		})
+		return nil, err
 	}
 
 	sort.Slice(res.Data, func(i, j int) bool {
@@ -81,9 +77,7 @@ func (service *KakuyomuServiceImpl) KakuyomuChapterPage(params *request.ChapterN
 
 	err := c.Visit(params.Url)
 	if err != nil {
-		panic(exception.GeneralError{
-			Message: err.Error(),
-		})
+		return nil, err
 	}
 
 	translateRequest := &request.TranslateChapterRequest{
@@ -93,9 +87,7 @@ func (service *KakuyomuServiceImpl) KakuyomuChapterPage(params *request.ChapterN
 
 	getTranslate, err := service.TranslateRepository.TranslateChapter(translateRequest)
 	if err != nil {
-		panic(exception.GeneralError{
-			Message: err.Error(),
-		})
+		return nil, fiber.NewError(fiber.StatusBadGateway, err.Error())
 	}
 
 	result := &model.BaseResponse[*response.GetChapterPageResponse]{

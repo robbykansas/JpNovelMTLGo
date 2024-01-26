@@ -1,6 +1,7 @@
 package test
 
 import (
+	"jpnovelmtlgo/internal/config"
 	"jpnovelmtlgo/internal/controller"
 	"jpnovelmtlgo/internal/repository"
 	"jpnovelmtlgo/internal/service"
@@ -63,7 +64,7 @@ func (uts *UnitTestSuite) SetupSuite() {
 	uts.syosetuService = syosetuService
 	uts.kakuyomuService = kakuyomuService
 	// Controller
-	uts.app = fiber.New()
+	uts.app = fiber.New(config.NewFiberConfig())
 	uts.kakuyomuController = kakuyomuController
 	uts.syosetuController = syosetuController
 	uts.healthcheckController = healthcheckController

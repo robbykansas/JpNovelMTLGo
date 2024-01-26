@@ -47,7 +47,7 @@ func (repository *TranslateRepositoryImpl) TranslateChapter(params *request.Tran
 
 	go repository.TranslateWord(payloadTitleRequest, translateTitle, errorChannel)
 	go repository.TranslateWord(payloadChapterRequest, translateChapter, errorChannel)
-
+	fmt.Println(<-errorChannel)
 	select {
 	case err := <-errorChannel:
 		close(errorChannel)
@@ -69,10 +69,12 @@ func (repository *TranslateRepositoryImpl) TranslateChapter(params *request.Tran
 
 func (repository *TranslateRepositoryImpl) TranslateWord(params *request.TranslateRequest, channelWord chan<- string, errorChannel chan<- error) {
 	client := &http.Client{}
-	fmt.Println("<<<<<<<<<<<<<<<<<< access this")
+
 	jsonData, err := json.Marshal(params)
 	if err != nil {
+
 		errorChannel <- err
+		return
 	}
 
 	payload := strings.NewReader(string(jsonData))
@@ -80,12 +82,14 @@ func (repository *TranslateRepositoryImpl) TranslateWord(params *request.Transla
 	req, err := http.NewRequest("POST", repository.Configuration.Get("TRANSLATE_URL"), payload)
 	if err != nil {
 		errorChannel <- err
+		return
 	}
 
 	req.Header.Add("Content-Type", "application/json")
 	res, err := client.Do(req)
 	if err != nil {
 		errorChannel <- err
+		return
 	}
 
 	translatedText := &response.TranslateResponse{}
