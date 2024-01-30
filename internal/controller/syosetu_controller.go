@@ -31,14 +31,12 @@ func (controller *SyosetuController) ListChapterNovel(ctx *fiber.Ctx) error {
 	var request request.ChapterNovelRequest
 	err := ctx.BodyParser(&request)
 	if err != nil {
-		exception.PanicIfNeeded(err)
+		return exception.HandlerError(ctx, fiber.NewError(fiber.StatusBadRequest, err.Error()))
 	}
 
 	response, err := controller.SyosetuService.ListChapterNovel(&request)
 	if err != nil {
-		panic(exception.GeneralError{
-			Message: err.Error(),
-		})
+		return exception.HandlerError(ctx, err)
 	}
 
 	return ctx.Status(200).JSON(response)
@@ -48,14 +46,12 @@ func (controller *SyosetuController) GetChapterNovel(ctx *fiber.Ctx) error {
 	var request request.ChapterNovelRequest
 	err := ctx.BodyParser(&request)
 	if err != nil {
-		exception.PanicIfNeeded(err)
+		return exception.HandlerError(ctx, fiber.NewError(fiber.StatusBadRequest, err.Error()))
 	}
 
 	response, err := controller.SyosetuService.GetChapterPage(&request)
 	if err != nil {
-		panic(exception.GeneralError{
-			Message: err.Error(),
-		})
+		return exception.HandlerError(ctx, err)
 	}
 
 	return ctx.Status(200).JSON(response)
@@ -65,14 +61,12 @@ func (controller *SyosetuController) JpEpub(ctx *fiber.Ctx) error {
 	var request request.ConvertNovelRequest
 	err := ctx.BodyParser(&request)
 	if err != nil {
-		exception.PanicIfNeeded(err)
+		return exception.HandlerError(ctx, fiber.NewError(fiber.StatusBadRequest, err.Error()))
 	}
 
 	response, err := controller.SyosetuService.JpEpub(&request)
 	if err != nil {
-		panic(exception.GeneralError{
-			Message: err.Error(),
-		})
+		return exception.HandlerError(ctx, err)
 	}
 
 	return ctx.Status(200).JSON(response)
@@ -82,14 +76,12 @@ func (controller *SyosetuController) EnEpub(ctx *fiber.Ctx) error {
 	var request request.ConvertNovelRequest
 	err := ctx.BodyParser(&request)
 	if err != nil {
-		exception.PanicIfNeeded(err)
+		return exception.HandlerError(ctx, fiber.NewError(fiber.StatusBadRequest, err.Error()))
 	}
 
 	response, err := controller.SyosetuService.EnEpub(&request)
 	if err != nil {
-		panic(exception.GeneralError{
-			Message: err.Error(),
-		})
+		return exception.HandlerError(ctx, err)
 	}
 
 	return ctx.Status(200).JSON(response)

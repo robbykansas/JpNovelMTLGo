@@ -29,14 +29,12 @@ func (controller *KakuyomuController) KakuyomuListChapter(ctx *fiber.Ctx) error 
 	var request request.ChapterNovelRequest
 	err := ctx.BodyParser(&request)
 	if err != nil {
-		exception.PanicIfNeeded(err)
+		return exception.HandlerError(ctx, fiber.NewError(fiber.StatusBadRequest, err.Error()))
 	}
 
 	response, err := controller.KakuyomuService.KakuyomuListChapter(&request)
 	if err != nil {
-		panic(exception.GeneralError{
-			Message: err.Error(),
-		})
+		return exception.HandlerError(ctx, err)
 	}
 
 	return ctx.Status(200).JSON(response)
@@ -46,13 +44,11 @@ func (controller *KakuyomuController) KakuyomuChapterPage(ctx *fiber.Ctx) error 
 	var request request.ChapterNovelRequest
 	err := ctx.BodyParser(&request)
 	if err != nil {
-		// Generate this error with remove header content-type
-		exception.PanicIfNeeded(err)
+		return exception.HandlerError(ctx, fiber.NewError(fiber.StatusBadRequest, err.Error()))
 	}
 
 	response, err := controller.KakuyomuService.KakuyomuChapterPage(&request)
 	if err != nil {
-		// fmt.Println(err.(*fiber.Error).Code)
 		return exception.HandlerError(ctx, err)
 	}
 

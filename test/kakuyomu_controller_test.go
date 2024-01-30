@@ -2,6 +2,7 @@ package test
 
 import (
 	"encoding/json"
+	"fmt"
 	"jpnovelmtlgo/internal/model"
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
@@ -48,6 +49,37 @@ func (uts *UnitTestSuite) TestKakuyomuListChapterController() {
 	uts.Equal(http.StatusOK, resp.StatusCode)
 }
 
+func (uts *UnitTestSuite) TestKakuyomuListChapter_ErrorParse() {
+	payload := &request.ChapterNovelRequest{
+		Url: "https://kakuyomu.jp/works/16817330664532961874",
+	}
+
+	payloadByte, _ := json.Marshal(payload)
+	body := string(payloadByte)
+	req := httptest.NewRequest(http.MethodPost, "/kakuyomu/list-chapter", strings.NewReader(body))
+
+	resp, _ := uts.app.Test(req)
+	uts.Equal(http.StatusBadRequest, resp.StatusCode)
+}
+
+func (uts *UnitTestSuite) TestKakuyomuListChapter_Error() {
+	errData := fiber.NewError(fiber.StatusInternalServerError, "error mock")
+
+	payload := &request.ChapterNovelRequest{
+		Url: "https://kakuyomu.jp/works/16817330664532961874",
+	}
+	uts.MockKakuyomuService.On("KakuyomuListChapter", payload).Return(nil, errData)
+
+	payloadByte, _ := json.Marshal(payload)
+	body := string(payloadByte)
+	req := httptest.NewRequest(http.MethodPost, "/kakuyomu/list-chapter", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, _ := uts.app.Test(req)
+	fmt.Printf("%+v\n", resp)
+	uts.Equal(http.StatusInternalServerError, resp.StatusCode)
+}
+
 func (uts *UnitTestSuite) TestKakuyomuChapterPageController() {
 	mockTranslateResponse := &response.GetChapterPageResponse{
 		Title:   "titleEn",
@@ -71,6 +103,19 @@ func (uts *UnitTestSuite) TestKakuyomuChapterPageController() {
 
 	resp, _ := uts.app.Test(req)
 	uts.Equal(http.StatusOK, resp.StatusCode)
+}
+
+func (uts *UnitTestSuite) TestKakuyomuChapterPage_ErrorParse() {
+	payload := &request.ChapterNovelRequest{
+		Url: "https://kakuyomu.jp/works/16817330664532961874",
+	}
+
+	payloadByte, _ := json.Marshal(payload)
+	body := string(payloadByte)
+	req := httptest.NewRequest(http.MethodPost, "/kakuyomu/chapter", strings.NewReader(body))
+
+	resp, _ := uts.app.Test(req)
+	uts.Equal(http.StatusBadRequest, resp.StatusCode)
 }
 
 func (uts *UnitTestSuite) TestKakuyomuChapterPage_Error() {
