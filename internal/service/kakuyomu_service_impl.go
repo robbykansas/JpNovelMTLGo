@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"jpnovelmtlgo/internal/model"
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
@@ -46,12 +47,12 @@ func (service *KakuyomuServiceImpl) KakuyomuListChapter(params *request.ChapterN
 
 	err := c.Visit(params.Url)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("failed to visit url")
 	}
 
 	res, err := service.TranslateRepository.TranslateList(listChapter)
 	if err != nil {
-		return nil, err
+		return nil, fiber.NewError(fiber.StatusBadGateway, err.Error())
 	}
 
 	sort.Slice(res.Data, func(i, j int) bool {
@@ -77,7 +78,7 @@ func (service *KakuyomuServiceImpl) KakuyomuChapterPage(params *request.ChapterN
 
 	err := c.Visit(params.Url)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Failed to visit url")
 	}
 
 	translateRequest := &request.TranslateChapterRequest{

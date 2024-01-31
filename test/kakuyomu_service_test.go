@@ -5,6 +5,7 @@ import (
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -46,7 +47,7 @@ func (uts *UnitTestSuite) TestKakuyomuChapterPage() {
 		Title:   "titleEn",
 		Chapter: "chapterEn",
 	}
-	uts.MockTranslateRepository.On("TranslateChapter", mock.AnythingOfType("*request.TranslateChapterRequest")).Return(mockTranslateResponse, nil)
+	uts.MockTranslateRepository.On("TranslateChapter", mock.AnythingOfType("*request.TranslateChapterRequest")).Return(mockTranslateResponse, nil).Once()
 
 	payload := &request.ChapterNovelRequest{
 		Url: "https://kakuyomu.jp/works/16817330664532961874/episodes/16817330664611957867",
@@ -62,4 +63,28 @@ func (uts *UnitTestSuite) TestKakuyomuChapterPage() {
 
 	uts.Equal(mockResult, res)
 	uts.Nil(err)
+}
+
+func (uts *UnitTestSuite) TestKakuyomuChapterPage_Error() {
+	errData := fiber.NewError(fiber.StatusBadGateway, "Bad Gateway Error")
+	uts.MockTranslateRepository.On("TranslateChapter", mock.AnythingOfType("*request.TranslateChapterRequest")).Return(nil, errData)
+
+	payload := &request.ChapterNovelRequest{
+		Url: "https://kakuyomu.jp/works/16817330664532961874/episodes/16817330664868675561",
+	}
+
+	res, err := uts.kakuyomuService.KakuyomuChapterPage(payload)
+
+	uts.Nil(res)
+	uts.EqualError(err, "Bad Gateway Error")
+}
+
+func (uts *UnitTestSuite) TestKakuyomuChapterPage_ErrorColly() {
+	payload := &request.ChapterNovelRequest{
+		Url: "",
+	}
+	res, err := uts.kakuyomuService.KakuyomuChapterPage(payload)
+
+	uts.Nil(res)
+	uts.EqualError(err, "Failed to visit url")
 }

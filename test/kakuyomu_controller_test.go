@@ -49,7 +49,7 @@ func (uts *UnitTestSuite) TestKakuyomuListChapterController() {
 	uts.Equal(http.StatusOK, resp.StatusCode)
 }
 
-func (uts *UnitTestSuite) TestKakuyomuListChapter_ErrorParse() {
+func (uts *UnitTestSuite) TestKakuyomuListChapterController_ErrorParse() {
 	payload := &request.ChapterNovelRequest{
 		Url: "https://kakuyomu.jp/works/16817330664532961874",
 	}
@@ -62,7 +62,7 @@ func (uts *UnitTestSuite) TestKakuyomuListChapter_ErrorParse() {
 	uts.Equal(http.StatusBadRequest, resp.StatusCode)
 }
 
-func (uts *UnitTestSuite) TestKakuyomuListChapter_Error() {
+func (uts *UnitTestSuite) TestKakuyomuListChapterController_Error() {
 	errData := fiber.NewError(fiber.StatusInternalServerError, "error mock")
 
 	payload := &request.ChapterNovelRequest{
@@ -105,7 +105,7 @@ func (uts *UnitTestSuite) TestKakuyomuChapterPageController() {
 	uts.Equal(http.StatusOK, resp.StatusCode)
 }
 
-func (uts *UnitTestSuite) TestKakuyomuChapterPage_ErrorParse() {
+func (uts *UnitTestSuite) TestKakuyomuChapterPageController_ErrorParse() {
 	payload := &request.ChapterNovelRequest{
 		Url: "https://kakuyomu.jp/works/16817330664532961874",
 	}
@@ -118,7 +118,7 @@ func (uts *UnitTestSuite) TestKakuyomuChapterPage_ErrorParse() {
 	uts.Equal(http.StatusBadRequest, resp.StatusCode)
 }
 
-func (uts *UnitTestSuite) TestKakuyomuChapterPage_Error() {
+func (uts *UnitTestSuite) TestKakuyomuChapterPageController_Error() {
 	errData := fiber.NewError(fiber.StatusBadRequest, "error mock")
 
 	payload := &request.ChapterNovelRequest{
