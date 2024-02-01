@@ -72,3 +72,9 @@ func (uts *UnitTestSuite) SetupSuite() {
 	uts.syosetuController.Route(uts.app)
 	uts.healthcheckController.Route(uts.app)
 }
+
+func (uts *UnitTestSuite) TearDownSuite() {
+	uts.MockTranslateRepository = nil
+	uts.MockKakuyomuService = nil
+	uts.kakuyomuService = nil
+}
