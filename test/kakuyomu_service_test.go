@@ -10,6 +10,8 @@ import (
 )
 
 func (uts *UnitTestSuite) TestKakuyomuListChapter() {
+	uts.MockTranslateRepository.ExpectedCalls = nil
+
 	mockData := []request.TranslateListRequest{
 		{
 			Title:   "example1",
@@ -34,7 +36,7 @@ func (uts *UnitTestSuite) TestKakuyomuListChapter() {
 	uts.MockTranslateRepository.On(
 		"TranslateList",
 		mock.AnythingOfType("[]request.TranslateListRequest")).
-		Return(mockResult, nil)
+		Return(mockResult, nil).Once()
 
 	payload := &request.ChapterNovelRequest{
 		Url: "https://kakuyomu.jp/works/16817139558533391541",
@@ -44,10 +46,23 @@ func (uts *UnitTestSuite) TestKakuyomuListChapter() {
 	uts.Equal(mockResult, res)
 	uts.Nil(err)
 
-	uts.MockTranslateRepository.AssertExpectations(uts.T())
+	uts.MockTranslateRepository.ExpectedCalls = nil
+
+	errData := fiber.NewError(fiber.StatusBadGateway, "Bad Gateway Error Bet")
+	uts.MockTranslateRepository.On(
+		"TranslateList",
+		mock.AnythingOfType("[]request.TranslateListRequest")).
+		Return(nil, errData).Once()
+
+	resNil, err := uts.kakuyomuService.KakuyomuListChapter(payload)
+
+	uts.Nil(resNil)
+	uts.EqualError(err, "Bad Gateway Error Bet")
 }
 
 func (uts *UnitTestSuite) TestKakuyomuChapterPage() {
+	uts.MockTranslateRepository.ExpectedCalls = nil
+
 	mockTranslateResponse := &response.GetChapterPageResponse{
 		Title:   "titleEn",
 		Chapter: "chapterEn",
@@ -71,31 +86,33 @@ func (uts *UnitTestSuite) TestKakuyomuChapterPage() {
 
 	uts.Equal(mockResult, res)
 	uts.Nil(err)
-
-	uts.MockTranslateRepository.AssertExpectations(uts.T())
-}
-
-// Still error because of request mock.AnythingOfType, the result is like the past result because of same request
-func (uts *UnitTestSuite) TestKakuyomuChapterPage_Error() {
+	// Reset Mock Translate Repository
+	uts.MockTranslateRepository.ExpectedCalls = nil
+	// Get Error Response
 	errData := fiber.NewError(fiber.StatusBadGateway, "Bad Gateway Error")
 	uts.MockTranslateRepository.On(
 		"TranslateChapter",
 		mock.AnythingOfType("*request.TranslateChapterRequest")).
 		Return(nil, errData).Once()
 
-	payload := &request.ChapterNovelRequest{
-		Url: "https://kakuyomu.jp/works/16817330664532961874/episodes/16817330664868675561",
-	}
+	resNil, err := uts.kakuyomuService.KakuyomuChapterPage(payload)
 
-	res, err := uts.kakuyomuService.KakuyomuChapterPage(payload)
+	uts.Nil(resNil)
+	uts.EqualError(err, "Bad Gateway Error")
+}
+
+func (uts *UnitTestSuite) TestKakuyomuListChapter_ErrorURL() {
+	payload := &request.ChapterNovelRequest{
+		Url: "",
+	}
+	res, err := uts.kakuyomuService.KakuyomuListChapter(payload)
 
 	uts.Nil(res)
-	uts.EqualError(err, "Bad Gateway Error")
+	uts.EqualError(err, "Failed to visit url")
 
 	uts.MockTranslateRepository.AssertExpectations(uts.T())
 }
-
-func (uts *UnitTestSuite) TestKakuyomuChapterPage_ErrorColly() {
+func (uts *UnitTestSuite) TestKakuyomuChapterPage_ErrorURL() {
 	payload := &request.ChapterNovelRequest{
 		Url: "",
 	}

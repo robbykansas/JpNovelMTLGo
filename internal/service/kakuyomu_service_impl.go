@@ -47,7 +47,7 @@ func (service *KakuyomuServiceImpl) KakuyomuListChapter(params *request.ChapterN
 
 	err := c.Visit(params.Url)
 	if err != nil {
-		return nil, errors.New("failed to visit url")
+		return nil, errors.New("Failed to visit url")
 	}
 
 	res, err := service.TranslateRepository.TranslateList(listChapter)

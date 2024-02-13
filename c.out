@@ -5,9 +5,9 @@ jpnovelmtlgo/internal/service/kakuyomu_service_impl.go:32.63,33.104 1 1
 jpnovelmtlgo/internal/service/kakuyomu_service_impl.go:33.104,34.72 1 1
 jpnovelmtlgo/internal/service/kakuyomu_service_impl.go:34.72,44.5 4 1
 jpnovelmtlgo/internal/service/kakuyomu_service_impl.go:48.2,49.16 2 1
-jpnovelmtlgo/internal/service/kakuyomu_service_impl.go:49.16,51.3 1 0
+jpnovelmtlgo/internal/service/kakuyomu_service_impl.go:49.16,51.3 1 1
 jpnovelmtlgo/internal/service/kakuyomu_service_impl.go:53.2,54.16 2 1
-jpnovelmtlgo/internal/service/kakuyomu_service_impl.go:54.16,56.3 1 0
+jpnovelmtlgo/internal/service/kakuyomu_service_impl.go:54.16,56.3 1 1
 jpnovelmtlgo/internal/service/kakuyomu_service_impl.go:58.2,58.43 1 1
 jpnovelmtlgo/internal/service/kakuyomu_service_impl.go:58.43,60.3 1 1
 jpnovelmtlgo/internal/service/kakuyomu_service_impl.go:62.2,62.17 1 1
@@ -18,7 +18,7 @@ jpnovelmtlgo/internal/service/kakuyomu_service_impl.go:75.61,77.3 1 1
 jpnovelmtlgo/internal/service/kakuyomu_service_impl.go:79.2,80.16 2 1
 jpnovelmtlgo/internal/service/kakuyomu_service_impl.go:80.16,82.3 1 1
 jpnovelmtlgo/internal/service/kakuyomu_service_impl.go:84.2,90.16 3 1
-jpnovelmtlgo/internal/service/kakuyomu_service_impl.go:90.16,92.3 1 0
+jpnovelmtlgo/internal/service/kakuyomu_service_impl.go:90.16,92.3 1 1
 jpnovelmtlgo/internal/service/kakuyomu_service_impl.go:94.2,100.20 2 1
 jpnovelmtlgo/internal/service/syosetu_service_impl.go:25.18,29.2 1 1
 jpnovelmtlgo/internal/service/syosetu_service_impl.go:31.151,36.68 3 1
