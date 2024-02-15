@@ -5,6 +5,7 @@ import (
 	"jpnovelmtlgo/internal/model/request"
 	"jpnovelmtlgo/internal/model/response"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -30,7 +31,10 @@ func (uts *UnitTestSuite) TestListChapterNovel() {
 		Data:       mockData,
 	}
 
-	uts.MockTranslateRepository.On("TranslateList", mock.AnythingOfType("[]request.TranslateListRequest")).Return(resultMock, nil)
+	uts.MockTranslateRepository.On(
+		"TranslateList",
+		mock.AnythingOfType("[]request.TranslateListRequest")).
+		Return(resultMock, nil).Once()
 
 	payload := &request.ChapterNovelRequest{
 		Url: "https://ncode.syosetu.com/n6093en/",
@@ -39,44 +43,20 @@ func (uts *UnitTestSuite) TestListChapterNovel() {
 	res, err := uts.syosetuService.ListChapterNovel(payload)
 	uts.Equal(resultMock, res)
 	uts.Nil(err)
+
+	uts.MockTranslateRepository.ExpectedCalls = nil
+
+	errData := fiber.NewError(fiber.StatusBadGateway, "Bad Gateway Error")
+	uts.MockTranslateRepository.On(
+		"TranslateList",
+		mock.AnythingOfType("[]request.TranslateListRequest")).
+		Return(nil, errData).Once()
+
+	resNil, err := uts.syosetuService.ListChapterNovel(payload)
+
+	uts.Nil(resNil)
+	uts.EqualError(err, "Bad Gateway Error")
 }
-
-// func (uts *UnitTestSuite) TestListChapterNovel_Error() {
-// 	mockData := []request.TranslateListRequest{
-// 		{
-// 			Title:   "example1",
-// 			Url:     "url1",
-// 			TitleEn: "exampleEn",
-// 			Order:   1,
-// 		},
-// 		{
-// 			Title:   "example2",
-// 			Url:     "url2",
-// 			TitleEn: "exampleEn2",
-// 			Order:   2,
-// 		},
-// 	}
-
-// 	resultMock := &model.BaseResponse[[]request.TranslateListRequest]{
-// 		StatusCode: "200",
-// 		Message:    "Success",
-// 		Data:       mockData,
-// 	}
-
-// 	testError := errors.New("error")
-
-// 	uts.MockTranslateRepository.On("TranslateList", mock.AnythingOfType("[]request.TranslateListRequest")).Return(nil, testError)
-
-// 	payload := &request.ChapterNovelRequest{
-// 		Url: "https://ncode.syosetu.com/n6093en/",
-// 	}
-
-// 	context := &fiber.Ctx{}
-
-// 	res, err := uts.syosetuService.ListChapterNovel(context, payload)
-// 	uts.Equal(resultMock, res)
-// 	uts.EqualError(err, "Please wait a few minutes before you try again.")
-// }
 
 func (uts *UnitTestSuite) TestGetChapterPage() {
 	mockTranslateResponse := &response.GetChapterPageResponse{
@@ -89,7 +69,10 @@ func (uts *UnitTestSuite) TestGetChapterPage() {
 		Message:    "Success",
 		Data:       mockTranslateResponse,
 	}
-	uts.MockTranslateRepository.On("TranslateChapter", mock.AnythingOfType("*request.TranslateChapterRequest")).Return(mockTranslateResponse, nil)
+	uts.MockTranslateRepository.On(
+		"TranslateChapter",
+		mock.AnythingOfType("*request.TranslateChapterRequest")).
+		Return(mockTranslateResponse, nil).Once()
 
 	payload := &request.ChapterNovelRequest{
 		Url: "http://ncode.syosetu.com/n6093en/395",
@@ -99,20 +82,37 @@ func (uts *UnitTestSuite) TestGetChapterPage() {
 
 	uts.Equal(mockResult, res)
 	uts.Nil(err)
+
+	uts.MockTranslateRepository.ExpectedCalls = nil
+
+	errData := fiber.NewError(fiber.StatusBadGateway, "Bad Gateway Error")
+	uts.MockTranslateRepository.On(
+		"TranslateChapter",
+		mock.AnythingOfType("*request.TranslateChapterRequest")).
+		Return(nil, errData).Once()
+
+	resNil, err := uts.syosetuService.GetChapterPage(payload)
+
+	uts.Nil(resNil)
+	uts.EqualError(err, "Bad Gateway Error")
 }
 
-// func (uts *UnitTestSuite) TestJpEpub() {
-// 	payload := &request.ConvertNovelRequest{
-// 		Url:  "http://ncode.syosetu.com/n6093en/",
-// 		Page: "1-2",
-// 	}
-// 	context := &fiber.Ctx{}
+func (uts *UnitTestSuite) TestListChapterNovel_ErrorURL() {
+	payload := &request.ChapterNovelRequest{
+		Url: "",
+	}
 
-// 	result := &fiber.Map{
-// 		"success": true,
-// 	}
+	res, err := uts.syosetuService.ListChapterNovel(payload)
+	uts.Nil(res)
+	uts.EqualError(err, "Failed to visit url")
+}
 
-// 	res, err := uts.syosetuService.JpEpub(context, payload)
-// 	uts.Equal(result, res)
-// 	uts.Nil(err)
-// }
+func (uts *UnitTestSuite) TestGetChapterPage_ErrorURL() {
+	payload := &request.ChapterNovelRequest{
+		Url: "",
+	}
+
+	res, err := uts.syosetuService.GetChapterPage(payload)
+	uts.Nil(res)
+	uts.EqualError(err, "Failed to visit url")
+}

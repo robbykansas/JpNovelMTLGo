@@ -48,7 +48,7 @@ func (uts *UnitTestSuite) TestKakuyomuListChapter() {
 
 	uts.MockTranslateRepository.ExpectedCalls = nil
 
-	errData := fiber.NewError(fiber.StatusBadGateway, "Bad Gateway Error Bet")
+	errData := fiber.NewError(fiber.StatusBadGateway, "Bad Gateway Error")
 	uts.MockTranslateRepository.On(
 		"TranslateList",
 		mock.AnythingOfType("[]request.TranslateListRequest")).
@@ -57,7 +57,7 @@ func (uts *UnitTestSuite) TestKakuyomuListChapter() {
 	resNil, err := uts.kakuyomuService.KakuyomuListChapter(payload)
 
 	uts.Nil(resNil)
-	uts.EqualError(err, "Bad Gateway Error Bet")
+	uts.EqualError(err, "Bad Gateway Error")
 }
 
 func (uts *UnitTestSuite) TestKakuyomuChapterPage() {

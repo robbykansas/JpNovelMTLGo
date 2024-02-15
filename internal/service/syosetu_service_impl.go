@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"jpnovelmtlgo/internal/exception"
 	"jpnovelmtlgo/internal/model"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/go-shiori/go-epub"
 	"github.com/gocolly/colly/v2"
+	"github.com/gofiber/fiber/v2"
 )
 
 type SyosetuServiceImpl struct {
@@ -48,16 +50,12 @@ func (service *SyosetuServiceImpl) ListChapterNovel(params *request.ChapterNovel
 
 	err := c.Visit(params.Url)
 	if err != nil {
-		panic(exception.GeneralError{
-			Message: err.Error(),
-		})
+		return nil, errors.New("Failed to visit url")
 	}
 
 	res, err := service.TranslateRepository.TranslateList(listChapter)
 	if err != nil {
-		panic(exception.GeneralError{
-			Message: err.Error(),
-		})
+		return nil, fiber.NewError(fiber.StatusBadGateway, err.Error())
 	}
 
 	sort.Slice(res.Data, func(i, j int) bool {
@@ -82,9 +80,7 @@ func (service *SyosetuServiceImpl) GetChapterPage(params *request.ChapterNovelRe
 
 	err := c.Visit(params.Url)
 	if err != nil {
-		panic(exception.GeneralError{
-			Message: err.Error(),
-		})
+		return nil, errors.New("Failed to visit url")
 	}
 
 	translateRequest := &request.TranslateChapterRequest{
@@ -94,9 +90,7 @@ func (service *SyosetuServiceImpl) GetChapterPage(params *request.ChapterNovelRe
 
 	getTranslate, err := service.TranslateRepository.TranslateChapter(translateRequest)
 	if err != nil {
-		panic(exception.GeneralError{
-			Message: err.Error(),
-		})
+		return nil, fiber.NewError(fiber.StatusBadGateway, err.Error())
 	}
 
 	result := &model.BaseResponse[*response.GetChapterPageResponse]{
@@ -126,9 +120,7 @@ func (service *SyosetuServiceImpl) JpEpub(params *request.ConvertNovelRequest) (
 
 	err := c.Visit(params.Url)
 	if err != nil {
-		panic(exception.GeneralError{
-			Message: err.Error(),
-		})
+		return nil, errors.New("Failed to visit url")
 	}
 
 	e, err := epub.NewEpub(title)
@@ -238,9 +230,7 @@ func (service *SyosetuServiceImpl) EnEpub(params *request.ConvertNovelRequest) (
 
 	err := c.Visit(params.Url)
 	if err != nil {
-		panic(exception.GeneralError{
-			Message: err.Error(),
-		})
+		return nil, errors.New("Failed to visit url")
 	}
 
 	novelInfo := &request.NovelInfo{
