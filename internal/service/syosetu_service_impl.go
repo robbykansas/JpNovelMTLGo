@@ -65,6 +65,46 @@ func (service *SyosetuServiceImpl) ListChapterNovel(params *request.ChapterNovel
 	return res, nil
 }
 
+func (service *SyosetuServiceImpl) ListChapterNovelPage(params *request.ChapterNovelListPageRequest, wg *sync.WaitGroup, scrapingList chan<- response.TranslateListPageResponse) {
+	var listChapter []request.TranslateListRequest
+
+	c := colly.NewCollector()
+
+	c.OnHTML(".index_box .novel_sublist2", func(e *colly.HTMLElement) {
+		title := e.ChildText(".subtitle")
+		url := e.ChildAttr("a", "href")
+		urlSplit := strings.Split(url, "/")
+		url = params.Url + urlSplit[2] + "/"
+		chapter := &request.TranslateListRequest{
+			Title: title,
+			Url:   url,
+		}
+
+		listChapter = append(listChapter, *chapter)
+	})
+
+	err := c.Visit(params.Url)
+	if err != nil {
+		// return nil, errors.New("Failed to visit url")
+	}
+
+	res, err := service.TranslateRepository.TranslateList(listChapter)
+	if err != nil {
+		// return nil, fiber.NewError(fiber.StatusBadGateway, err.Error())
+	}
+
+	sort.Slice(res.Data, func(i, j int) bool {
+		return res.Data[i].Order < res.Data[j].Order
+	})
+
+	response := response.TranslateListPageResponse{
+		Page: params.Page,
+		Data: res.Data,
+	}
+	scrapingList <- response
+	// return res, nil
+}
+
 func (service *SyosetuServiceImpl) GetChapterPage(params *request.ChapterNovelRequest) (*model.BaseResponse[*response.GetChapterPageResponse], error) {
 	var title string
 	var honbun string

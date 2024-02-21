@@ -4,6 +4,11 @@ type ChapterNovelRequest struct {
 	Url string `json:"url"`
 }
 
+type ChapterNovelListPageRequest struct {
+	Url  string `json:"url"`
+	Page string `json:"page"`
+}
+
 type ConvertNovelRequest struct {
 	Url  string `json:"url"`
 	Page string `json:"page"`
