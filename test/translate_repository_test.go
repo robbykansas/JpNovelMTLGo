@@ -1,19 +1,24 @@
 package test
 
-// func (uts *UnitTestSuite) TestTranslateChapter() {
-// 	payload := &request.TranslateChapterRequest{
-// 		Title:   "1 メンバー募集",
-// 		Chapter: "5 帝都",
-// 	}
+import (
+	"jpnovelmtlgo/internal/model/request"
+	"jpnovelmtlgo/internal/model/response"
+)
 
-// 	resultTest := &response.GetChapterPageResponse{
-// 		Title:   "1 Recruitment",
-// 		Chapter: "5 Chengdu",
-// 	}
+func (uts *UnitTestSuite) TestTranslateChapter() {
+	payload := &request.TranslateChapterRequest{
+		Title:   "1 メンバー募集",
+		Chapter: "5 帝都",
+	}
 
-// 	uts.MockConfig.On("Get", "TRANSLATE_URL").Return("http://127.0.0.1:5001/translate")
+	resultTest := &response.GetChapterPageResponse{
+		Title:   "1 Recruitment",
+		Chapter: "5 Chengdu",
+	}
 
-// 	res, err := uts.translateRepository.TranslateChapter(payload)
-// 	uts.Equal(resultTest, res)
-// 	uts.Nil(err)
-// }
+	uts.MockConfig.On("Get", "TRANSLATE_URL").Return("http://127.0.0.1:5001/translate")
+
+	res, err := uts.translateRepository.TranslateChapter(payload)
+	uts.Equal(resultTest, res)
+	uts.Nil(err)
+}

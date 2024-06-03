@@ -31,41 +31,64 @@ func NewSyosetuService(
 }
 
 func (service *SyosetuServiceImpl) ListChapterNovel(params *request.ChapterNovelRequest) (*model.BaseResponse[[]request.TranslateListRequest], error) {
-	var listChapter []request.TranslateListRequest
+	listChapter := make(chan []request.TranslateListRequest)
+	var total int
+	var wg sync.WaitGroup
+	var listAllChapter []request.TranslateListRequest
 
 	c := colly.NewCollector()
 
-	c.OnHTML(".index_box .novel_sublist2", func(e *colly.HTMLElement) {
-		title := e.ChildText(".subtitle")
-		url := e.ChildAttr("a", "href")
-		urlSplit := strings.Split(url, "/")
-		url = params.Url + urlSplit[2] + "/"
-		chapter := &request.TranslateListRequest{
-			Title: title,
-			Url:   url,
-		}
-
-		listChapter = append(listChapter, *chapter)
+	c.OnHTML(".novelview_pager-box .novelview_pager", func(e *colly.HTMLElement) {
+		lastUrl := e.ChildAttr(".novelview_pager-last", "href")
+		total, _ = strconv.Atoi(strings.Split(lastUrl, "=")[1])
 	})
 
 	err := c.Visit(params.Url)
 	if err != nil {
-		return nil, errors.New("Failed to visit url")
+		return nil, errors.New("failed to visit url")
 	}
 
-	res, err := service.TranslateRepository.TranslateList(listChapter)
-	if err != nil {
-		return nil, fiber.NewError(fiber.StatusBadGateway, err.Error())
+	for i := 0; i < total; i++ {
+		wg.Add(1)
+		var url string
+		if i == 0 {
+			url = params.Url
+		} else {
+			url = fmt.Sprintf(params.Url+"?p=%s", strconv.Itoa(i))
+		}
+
+		payload := &request.ChapterNovelListPageRequest{
+			Url:  url,
+			Page: i,
+		}
+		fmt.Println(payload)
+		go service.ListChapterEachPage(payload, &wg, listChapter)
 	}
 
-	sort.Slice(res.Data, func(i, j int) bool {
-		return res.Data[i].Order < res.Data[j].Order
+	go func() {
+		wg.Wait()
+		close(listChapter)
+	}()
+
+	for listChap := range listChapter {
+		listAllChapter = append(listAllChapter, listChap...)
+	}
+
+	sort.Slice(listAllChapter, func(i, j int) bool {
+		return listAllChapter[i].Order < listAllChapter[j].Order
 	})
 
-	return res, nil
+	result := &model.BaseResponse[[]request.TranslateListRequest]{
+		StatusCode: "200",
+		Message:    "Success",
+		Data:       listAllChapter,
+	}
+
+	return result, nil
 }
 
-func (service *SyosetuServiceImpl) ListChapterNovelPage(params *request.ChapterNovelListPageRequest, wg *sync.WaitGroup, scrapingList chan<- response.TranslateListPageResponse) {
+func (service *SyosetuServiceImpl) ListChapterEachPage(params *request.ChapterNovelListPageRequest, wg *sync.WaitGroup, scrapingList chan<- []request.TranslateListRequest) {
+	defer wg.Done()
 	var listChapter []request.TranslateListRequest
 
 	c := colly.NewCollector()
@@ -74,10 +97,13 @@ func (service *SyosetuServiceImpl) ListChapterNovelPage(params *request.ChapterN
 		title := e.ChildText(".subtitle")
 		url := e.ChildAttr("a", "href")
 		urlSplit := strings.Split(url, "/")
+		originUrl := strings.Split(params.Url, "/")
+		fmt.Println(originUrl[1])
 		url = params.Url + urlSplit[2] + "/"
 		chapter := &request.TranslateListRequest{
 			Title: title,
 			Url:   url,
+			Page:  params.Page,
 		}
 
 		listChapter = append(listChapter, *chapter)
@@ -93,16 +119,7 @@ func (service *SyosetuServiceImpl) ListChapterNovelPage(params *request.ChapterN
 		// return nil, fiber.NewError(fiber.StatusBadGateway, err.Error())
 	}
 
-	sort.Slice(res.Data, func(i, j int) bool {
-		return res.Data[i].Order < res.Data[j].Order
-	})
-
-	response := response.TranslateListPageResponse{
-		Page: params.Page,
-		Data: res.Data,
-	}
-	scrapingList <- response
-	// return res, nil
+	scrapingList <- res.Data
 }
 
 func (service *SyosetuServiceImpl) GetChapterPage(params *request.ChapterNovelRequest) (*model.BaseResponse[*response.GetChapterPageResponse], error) {
@@ -120,7 +137,7 @@ func (service *SyosetuServiceImpl) GetChapterPage(params *request.ChapterNovelRe
 
 	err := c.Visit(params.Url)
 	if err != nil {
-		return nil, errors.New("Failed to visit url")
+		return nil, errors.New("failed to visit url")
 	}
 
 	translateRequest := &request.TranslateChapterRequest{
@@ -160,7 +177,7 @@ func (service *SyosetuServiceImpl) JpEpub(params *request.ConvertNovelRequest) (
 
 	err := c.Visit(params.Url)
 	if err != nil {
-		return nil, errors.New("Failed to visit url")
+		return nil, errors.New("failed to visit url")
 	}
 
 	e, err := epub.NewEpub(title)
@@ -270,7 +287,7 @@ func (service *SyosetuServiceImpl) EnEpub(params *request.ConvertNovelRequest) (
 
 	err := c.Visit(params.Url)
 	if err != nil {
-		return nil, errors.New("Failed to visit url")
+		return nil, errors.New("failed to visit url")
 	}
 
 	novelInfo := &request.NovelInfo{

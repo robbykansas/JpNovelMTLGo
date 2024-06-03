@@ -103,6 +103,8 @@ func (repository *TranslateRepositoryImpl) TranslateList(params []request.Transl
 	var wg sync.WaitGroup
 	var translatedList []request.TranslateListRequest
 	var count = 0
+	count = params[1].Page * 100
+
 	translatedTitle := make(chan request.TranslateListRequest, 10)
 
 	for _, item := range params {
@@ -174,6 +176,7 @@ func (repository *TranslateRepositoryImpl) TranslateEachTitle(params request.Tra
 		Url:     params.Url,
 		TitleEn: translatedText.TranslatedText,
 		Order:   params.Order,
+		Page:    params.Page,
 	}
 }
 

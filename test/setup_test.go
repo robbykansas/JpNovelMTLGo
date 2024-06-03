@@ -6,6 +6,7 @@ import (
 	"jpnovelmtlgo/internal/repository"
 	"jpnovelmtlgo/internal/service"
 	"jpnovelmtlgo/mocks"
+	"os"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
@@ -33,7 +34,7 @@ type UnitTestSuite struct {
 }
 
 func TestUnitTestSuite(t *testing.T) {
-	t.Setenv("TRANSLATE_URL", "http://127.0.0.1:5001/translate")
+	t.Setenv("TRANSLATE_URL", os.Getenv("TRANSLATE_URL"))
 	suite.Run(t, &UnitTestSuite{})
 }
 

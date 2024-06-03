@@ -6,7 +6,7 @@ type ChapterNovelRequest struct {
 
 type ChapterNovelListPageRequest struct {
 	Url  string `json:"url"`
-	Page string `json:"page"`
+	Page int    `json:"page"`
 }
 
 type ConvertNovelRequest struct {
@@ -35,6 +35,15 @@ type TranslateListRequest struct {
 	Url     string `json:"url"`
 	TitleEn string `json:"titleEn"`
 	Order   int    `json:"order"`
+	Page    int    `json:"page"`
+}
+
+type TranslateListEach struct {
+	Title   string `json:"title"`
+	Url     string `json:"url"`
+	TitleEn string `json:"titleEn"`
+	Order   int    `json:"order"`
+	Page    int    `json:"page"`
 }
 
 type NovelInfo struct {
